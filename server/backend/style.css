@@ -1,0 +1,26 @@
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
+body {
+    background-color: #333333;
+}
+
+#main {
+    margin: auto;
+    max-width: 900px;
+    background-color: #999999;
+    padding: 10px;
+}
+
+.queue-item{
+    background-color: #555555;
+    border: 1px solid black;
+    padding: 5px;
+    margin: 5px;
+}
+
+#queue {
+    max-height: 500px;
+}
