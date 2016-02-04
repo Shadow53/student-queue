@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Changing Password</title>
+
+    <link rel="stylesheet" href="../style.css" type="text/css" charset="utf-8">
+
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="http://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="changePass.js"></script>
+</head>
+<body>
+<div id="main">
+    <form name="login">
+        <h1>Changing the teacher password <span id="error"></span></h1>
+        <label>Old Password: <input type="password" name="old" id="old"/></label>
+        <label>New Password: <input type="password" name="pass1" id="pass1"/></label>
+        <label>Confirm New Password: <input type="password" name="pass2" id="pass2"/></label>
+        <button type="button" id="changePass">Change Password</button>
+    </form>
+    <script src="../teacher/auth.js"></script>
+</div>
+</body>
+</html>
