@@ -64,20 +64,6 @@ $(document).ready(function(){
         $("#bathroomQueue .queue-item").remove();
     });
 
-    $("#studentTest").click(function(e){
-        console.log("Clicked!");
-        socket.emit('studentRequest', {name: "Adding student to queue", id: "333333"});
-        console.log("Emitted!");
-        return false;
-    });
-
-    $("#bathroomTest").click(function(e){
-        console.log("Clicked!");
-        socket.emit('bathroomRequest', {name: "Adding student to queue", id: "333333"});
-        console.log("Emitted!");
-        return false;
-    });
-
     $("#studentClear").click(function(e){
         console.log("Cleared queue");
         $("#studentQueue .queue-item").remove();
