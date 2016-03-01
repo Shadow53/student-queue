@@ -81,7 +81,6 @@ io.on('connection', function(socket){
 
                 // Send html for teacher page
                 fs.readFile("private/teacher.html", "utf8", function(err, html){
-                    // TODO: Make sure this should happen if null and not if not null
                     if (err === null) {
                         socket.emit("changePassAuth", "An error occurred. If this continues, please contact an administrator.")
                     }
@@ -113,9 +112,7 @@ io.on('connection', function(socket){
 
         helpRequests[hCount] = student;
         hCount++;
-
-        socket.emit('placement', getCorrectGrammarPlace(hCount));
-
+        
         // Send to teacher page
         io.emit('addToQueue', student);
     });
@@ -126,8 +123,6 @@ io.on('connection', function(socket){
         bathroomRequests[bCount] = student;
         bCount++;
 
-        socket.emit('placement', getCorrectGrammarPlace(bCount));
-
         // Send to bathroom list
         io.emit('addToBathroomQueue', student);
     });
@@ -136,24 +131,3 @@ io.on('connection', function(socket){
 http.listen(3000, function(){
   console.log('listening on *:3000');
 });
-
-function getCorrectGrammarPlace(num){
-    var str = (""+num).slice(-1);
-    switch (str){
-        case 1:
-            return num + "st";
-        case 2:
-            return num + "nd";
-        case 3:
-            return num + "rd";
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-            return num + "th";
-        default:
-            return num;
-    }
-}

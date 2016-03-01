@@ -2,20 +2,8 @@
 $(document).ready(function(){
     //var socket = io();
 
-    var canNotify;
-    if ("Notification" in window) {
-      if (Notification.permission === "granted") {
-        canNotify = true;
-      }
-      else if (Notification.permission !== 'denied') {
-        Notification.requestPermission(function (permission) {
-          // If the user accepts, let's create a notification
-          if (permission === "granted") {
-            canNotify = true;
-          }
-        });
-      }
-    }
+    aboutToAskToNotify("alert you to new student requests while you are away from this page.");
+    var canNotify = askToNotify();
 
     socket.on('addToQueue', function(student){
 
@@ -34,7 +22,9 @@ $(document).ready(function(){
                 $(this).remove();
                 socket.emit('removeRequest', "#" + student.id + "Help");
             });
-            var notify = new Notification("HELP REQUEST\n" + student.name + ":\n" + student.problem);
+            if (canNotify) {
+                new Notification("HELP REQUEST\n" + student.name + ":\n" + student.problem);
+            }
         }
     });
 
