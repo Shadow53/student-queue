@@ -1,6 +1,22 @@
 "use strict";
 $(document).ready(function(){
-    var socket = io();
+    //var socket = io();
+
+    var canNotify;
+    if ("Notification" in window) {
+      if (Notification.permission === "granted") {
+        canNotify = true;
+      }
+      else if (Notification.permission !== 'denied') {
+        Notification.requestPermission(function (permission) {
+          // If the user accepts, let's create a notification
+          if (permission === "granted") {
+            canNotify = true;
+          }
+        });
+      }
+    }
+
     socket.on('addToQueue', function(student){
 
         // Check if student is in list already
@@ -17,7 +33,8 @@ $(document).ready(function(){
             $(elem).click(function(e){
                 $(this).remove();
                 socket.emit('removeRequest', "#" + student.id + "Help");
-            })
+            });
+            var notify = new Notification("HELP REQUEST\n" + student.name + ":\n" + student.problem);
         }
     });
 
@@ -56,23 +73,26 @@ $(document).ready(function(){
         $(id).remove();
     });
 
+    var studentQueueItems = $("#studentQueue .queue-item");
+    var bathroomQueueItems = $("#bathroomQueue .queue-item");
+
     socket.on('clearAllHelp', function(){
-        $("#studentQueue .queue-item").remove();
+        studentQueueItems.remove();
     });
 
     socket.on('clearAllBathroom', function(){
-        $("#bathroomQueue .queue-item").remove();
+        bathroomQueueItems.remove();
     });
 
     $("#studentClear").click(function(e){
         console.log("Cleared queue");
-        $("#studentQueue .queue-item").remove();
+        studentQueueItems.remove();
         socket.emit('clearedAllHelp');
     });
 
     $("#bathroomClear").click(function(e){
         console.log("Cleared queue");
-        $("#bathroomQueue .queue-item").remove();
+        bathroomQueueItems.remove();
         socket.emit('clearedAllBathroom');
     });
 
