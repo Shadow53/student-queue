@@ -12,18 +12,46 @@
 
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
-    <script src="changePass.js"></script>
+    <script src="../js/changePass.js"></script>
 </head>
 <body>
 <div id="main">
     <form name="login">
-        <h1>Changing the teacher password <span id="error"></span></h1>
-        <br/><label>Old Password: <input type="password" name="old" id="old"/></label>
-        <br/><label>New Password: <input type="password" name="pass1" id="pass1"/></label>
-        <br/><label>Confirm New Password: <input type="password" name="pass2" id="pass2"/></label>
-        <br/><button type="button" id="changePass">Change Password</button>
+        <div class="row">
+            <div class="large-12 medium-12 small-12 columns text-center">
+                <h1>Changing the teacher password <span id="error"></span></h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="large-4 medium-4 small-4 columns text-right align-self-middle">
+                <label for="old">Old Password: </label>
+            </div>
+            <div class="large-8 medium-8 small-8 columns text-left align-self-middle">
+                <input type="password" name="old" id="old"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="large-4 medium-4 small-4 columns text-right align-self-middle">
+                <label for="pass1">New Password: </label>
+            </div>
+            <div class="large-4 medium-4 small-4 columns text-left align-self-middle">
+                <input type="password" name="pass1" id="pass1"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="large-4 medium-4 small-4 columns text-right align-self-middle">
+                <label for="pass2">Confirm New Password: </label>
+            </div>
+            <div class="large-4 medium-4 small-4 columns text-left align-self-middle">
+                <input type="password" name="pass2" id="pass2"/>
+            </div>
+        </div>
+        <div class="row align-center">
+            <div class="large-4 medium-8 small-12 columns large-text-left medium-text-left small-text-center">
+                <button type="button" class="button" id="changePass">Change Password</button>
+            </div>
+        </div>
     </form>
-    <script src="../js/auth.js"></script>
 </div>
 </body>
 </html>
