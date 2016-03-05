@@ -10,7 +10,7 @@ $(document).ready(function(){
   $("input[name='isBathroom']").click(function(){
     var problemInput = $("#problemText");
     if (isBathroom()){
-      problemInput.attr("disabled", "disabled");
+      problemInput.prop("disabled", "disabled");
     }
     else {
       problemInput.removeAttr("disabled");
@@ -49,6 +49,7 @@ $(document).ready(function(){
           }
           $("input[type='text']").val("");
           $("input[name='isBathroom'][value='false']").attr("checked", "checked");
+          $("textarea").val("");
         }
         else {
           alert("Your name seems too short.");

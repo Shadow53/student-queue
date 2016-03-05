@@ -67,36 +67,21 @@ io.on('connection', function(socket){
                     io.emit('clearAllBathroom');
                 });
 
-                // Send html for teacher page
-                fs.readFile("private/teacher.html", "utf8", function(err, html){
-                    if (err === null) {
-                        socket.emit("changePassAuth", "An error occurred. If this continues, please contact an administrator.")
-                    }
-                    console.log("Sent teacher page");
-                    socket.emit('loginAuth', html);
+                socket.emit('loginAuth', true);
 
-                    // Timeout to give the HTML a little time to get to the page - Needed
-                    setTimeout(function(){
-                        for (var i in helpRequests) {
-                            console.log("In helpRequest loop");
-                            if (helpRequests.hasOwnProperty(i)) {
-                                console.log("Request sent:" + helpRequests[i]);
-                                socket.emit('addToQueue', helpRequests[i]);
-                            }
-                        }
-                        console.log("Sent help requests");
-                        for (var j in bathroomRequests) {
-                            console.log("In bathroomRequest loop");
-                            if (bathroomRequests.hasOwnProperty(j)) {
-                                console.log("Request sent:" + bathroomRequests[i]);
-                                socket.emit('addToBathroomQueue', bathroomRequests[j]);
-                            }
-                        }
-                    }, 100);
-                });
+                for (var i in helpRequests) {
+                    if (helpRequests.hasOwnProperty(i)) {
+                        socket.emit('addToQueue', helpRequests[i]);
+                    }
+                }
+                for (var j in bathroomRequests) {
+                    if (bathroomRequests.hasOwnProperty(j)) {
+                        socket.emit('addToBathroomQueue', bathroomRequests[j]);
+                    }
+                }
             },
             function(errMsg){
-                socket.emit('loginAuth', "Validation failed.\n" + errMsg);
+                socket.emit('loginAuth', false);
             });
     });
 

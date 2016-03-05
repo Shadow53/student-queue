@@ -3,6 +3,19 @@
  */
 var socket = io();
 $(document).ready(function(){
+
+    var loginModal = $("#login").dialog({
+        buttons: [{
+            text: "Login",
+            icons: {
+                primary: "ui-icon-close"
+            }
+        }],
+        closeOnEscape: false,
+        modal: true,
+        title: "Authorization Required"
+    });
+
     $("#btnLogin").on("click", function(e){
         login();
     });
@@ -15,14 +28,21 @@ $(document).ready(function(){
         }
     });
 
-    socket.on('loginAuth', function(contents){
-        $("#main").html(contents);
+    socket.on('loginAuth', function(success){
+        if (success){
+            $("#overlay").hide();
+            $(loginModal).dialog("close");
+        }
+        else {
+            $("#loginStatus").text("Failed to login.");
+        }
     });
 
+    $(loginModal).dialog("open");
     $("#pwInput").focus();
 });
 
 function login(){
     var pw = $("#pwInput").val();
-    socket.emit('login', pw)
+    socket.emit('login', pw);
 }

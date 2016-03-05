@@ -8,19 +8,57 @@
     <title>Teachers | Student Queue</title>
 
     <link rel="stylesheet" href="../css/foundation-flex.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="../css/jquery-ui.min.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="../css/jquery-ui.structure.min.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="../css/jquery-ui.theme.min.css" type="text/css" charset="utf-8">
     <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8">
 
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+    <script src="../js/jquery-ui.min.js" charset="utf-8"></script>
+    <script src="../js/auth.js" charset="utf-8"></script>
+    <script src="../js/canNotify.js" charset="utf-8"></script>
+    <script src="../js/queue.js" charset="utf-8"></script>
 
 </head>
 <body>
-<div id="main">
-    <form name="login">
-        <label>Please enter the teacher password: <input type="password" name="pw" id="pwInput"></label>
-        <button type="button" class="button" id="btnLogin">Authenticate</button>
-    </form>
-    <script src="../js/auth.js"></script>
-</div>
+    <div id="main">
+        <div class="row">
+            <div class="large-6 medium-6 small-12 columns text-center">
+                <div class="row">
+                    <div class="large-12 medium-12 small-9 columns">
+                        <h1>Student Queue</h1>
+                    </div>
+                    <div class="large-12 medium-12 columns large-text-left medium-text-left text-right">
+                        <button class="button" id="studentClear">Clear</button>
+                    </div>
+                </div>
+                <div class="row" id="studentQueue">
+
+                </div>
+            </div>
+            <div class="large-6 medium-6 small-12 columns text-center">
+                <div class="row">
+                    <div class="large-12 medium-12 small-9 columns">
+                        <h1>Bathroom Queue</h1>
+                    </div>
+                    <div class="large-12 medium-12 columns large-text-left medium-text-left text-right">
+                        <button class="button" id="bathroomClear">Clear</button>
+                    </div>
+                </div>
+                <div class="row" id="bathroomQueue">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="login">
+        <form name="login">
+            <label>Please enter the teacher password: <input type="password" name="pw" id="pwInput"></label>
+            <button type="button" class="button" id="btnLogin">Authenticate</button>
+            <span id="loginStatus"></span>
+        </form>
+    </div>
+    <div id="overlay"></div>
 </body>
 </html>
