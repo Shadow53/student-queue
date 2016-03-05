@@ -17,18 +17,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 io.on('connection', function(socket){
     console.log("Connection");
 
-    for (var i in helpRequests) {
-        if (helpRequests.hasOwnProperty(i)) {
-            socket.emit('addToQueue', helpRequests[i]);
-        }
-    }
-
-    for (var j in bathroomRequests) {
-        if (bathroomRequests.hasOwnProperty(j)) {
-            socket.emit('addToBathroomQueue', bathroomRequests[j]);
-        }
-    }
-
     // Only allow teacher/aide actions if authenticated
     socket.on('login', function(password){
         // Validate password against hash currently stored in text file
@@ -84,7 +72,27 @@ io.on('connection', function(socket){
                     if (err === null) {
                         socket.emit("changePassAuth", "An error occurred. If this continues, please contact an administrator.")
                     }
+                    console.log("Sent teacher page");
                     socket.emit('loginAuth', html);
+
+                    // Timeout to give the HTML a little time to get to the page - Needed
+                    setTimeout(function(){
+                        for (var i in helpRequests) {
+                            console.log("In helpRequest loop");
+                            if (helpRequests.hasOwnProperty(i)) {
+                                console.log("Request sent:" + helpRequests[i]);
+                                socket.emit('addToQueue', helpRequests[i]);
+                            }
+                        }
+                        console.log("Sent help requests");
+                        for (var j in bathroomRequests) {
+                            console.log("In bathroomRequest loop");
+                            if (bathroomRequests.hasOwnProperty(j)) {
+                                console.log("Request sent:" + bathroomRequests[i]);
+                                socket.emit('addToBathroomQueue', bathroomRequests[j]);
+                            }
+                        }
+                    }, 100);
                 });
             },
             function(errMsg){
@@ -112,7 +120,7 @@ io.on('connection', function(socket){
 
         helpRequests[hCount] = student;
         hCount++;
-        
+
         // Send to teacher page
         io.emit('addToQueue', student);
     });

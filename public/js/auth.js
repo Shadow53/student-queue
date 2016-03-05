@@ -18,6 +18,8 @@ $(document).ready(function(){
     socket.on('loginAuth', function(contents){
         $("#main").html(contents);
     });
+
+    $("#pwInput").focus();
 });
 
 function login(){

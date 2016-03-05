@@ -2,8 +2,7 @@
 $(document).ready(function(){
     //var socket = io();
 
-    aboutToAskToNotify("alert you to new student requests while you are away from this page.");
-    var canNotify = askToNotify();
+    var canNotify = askToNotify("alert you to new student requests while you are away from this page.");
 
     socket.on('addToQueue', function(student){
 
@@ -14,7 +13,7 @@ $(document).ready(function(){
         else {
             var elem = $('<div></div>', {
                 id: student.id + "Help",
-                class: "queue-item",
+                class: "large-12 medium-12 small-12 queue-item",
                 text: student.name + " -- " + student.problem
             });
             $('#studentQueue').append(elem);
@@ -48,14 +47,17 @@ $(document).ready(function(){
 
             var elem = $('<div></div>', {
                 id: student.id + "Bathroom",
-                class: "queue-item",
+                class: "large-12 medium-12 small-12 queue-item",
                 text: student.name + " -- " + stringTime
             });
             $('#bathroomQueue').append(elem);
             $(elem).click(function(e){
                 $(this).remove();
                 socket.emit('removeRequest', "#" + student.id + "Bathroom");
-            })
+            });
+            if (canNotify){
+                new Notification("New bathroom request");
+            }
         }
     });
 
@@ -63,26 +65,23 @@ $(document).ready(function(){
         $(id).remove();
     });
 
-    var studentQueueItems = $("#studentQueue .queue-item");
-    var bathroomQueueItems = $("#bathroomQueue .queue-item");
-
     socket.on('clearAllHelp', function(){
-        studentQueueItems.remove();
+        $("#studentQueue .queue-item").remove();
     });
 
     socket.on('clearAllBathroom', function(){
-        bathroomQueueItems.remove();
+        $("#bathroomQueue .queue-item").remove();
     });
 
     $("#studentClear").click(function(e){
         console.log("Cleared queue");
-        studentQueueItems.remove();
+        $("#studentQueue .queue-item").remove();
         socket.emit('clearedAllHelp');
     });
 
     $("#bathroomClear").click(function(e){
         console.log("Cleared queue");
-        bathroomQueueItems.remove();
+        $("#bathroomQueue .queue-item").remove();
         socket.emit('clearedAllBathroom');
     });
 
@@ -95,8 +94,4 @@ $(document).ready(function(){
     window.addEventListener("unload", function(e){
         socket.close();
     });
-
-    /*$(".queue-item").click(function(e){
-     $(this).remove();
-     })*/
 });

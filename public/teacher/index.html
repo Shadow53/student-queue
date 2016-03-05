@@ -1,9 +1,14 @@
 <!doctype html>
 <html>
 <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Teachers | Student Queue</title>
 
-    <link rel="stylesheet" href="../style.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="../css/foundation-flex.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="../css/style.css" type="text/css" charset="utf-8">
 
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
@@ -13,9 +18,9 @@
 <div id="main">
     <form name="login">
         <label>Please enter the teacher password: <input type="password" name="pw" id="pwInput"></label>
-        <button type="button" id="btnLogin">Authenticate</button>
+        <button type="button" class="button" id="btnLogin">Authenticate</button>
     </form>
-    <script src="auth.js"></script>
+    <script src="../js/auth.js"></script>
 </div>
 </body>
 </html>
