@@ -1,3 +1,6 @@
+/**
+ * Created by michael on 3/9/16.
+ */
 "use strict";
 var express = require('express');
 var app = express();
@@ -5,122 +8,121 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
 var path = require('path');
-var login = require('./login.js');
-
-var helpRequests = {};
-var hCount = 0;
-var bathroomRequests = {};
-var bCount = 0;
+var DB = require('student-queue-mysql-plugin');
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use("/js", express.static(path.join(__dirname, path.join('public', 'js'))));
+app.use("/css", express.static(path.join(__dirname, path.join('public', 'css'))));
 
-io.on('connection', function(socket){
-    console.log("Connection");
-
-    // Only allow teacher/aide actions if authenticated
-    socket.on('login', function(password){
-        // Validate password against hash currently stored in text file
-        var auth = login.validate(password);
-        // TODO: Change so that one login can provide multiple pages based on argument?
-        auth.then(
-            function(){
-                // Moved teacher socket handlers here so that they only work after validation
-                socket.on('removeRequest', function(id){
-                    var realId = id.slice(1,7);
-                    var type = id.slice(7);
-                    if (type === "Help"){
-                        for (var i in helpRequests) {
-                            if (helpRequests.hasOwnProperty(i)) {
-                                if (helpRequests[i].id === realId){
-                                    delete helpRequests[i];
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    else if (type === "Bathroom"){
-                        for (var i in bathroomRequests) {
-                            if (bathroomRequests.hasOwnProperty(i)) {
-                                if (bathroomRequests[i].id === realId){
-                                    delete bathroomRequests[i];
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        console.log("Could not remove request from object");
-                    }
-                    console.log("Student with id " + id + " was resolved");
-                    io.emit('removeStudent', id);
-                });
-
-                socket.on('clearedAllHelp', function(){
-                    helpRequests = {};
-                    hCount = 0;
-                    io.emit('clearAllHelp');
-                });
-
-                socket.on('clearedAllBathroom', function(){
-                    bathroomRequests = {};
-                    bCount = 0;
-                    io.emit('clearAllBathroom');
-                });
-
-                socket.emit('loginAuth', true);
-
-                for (var i in helpRequests) {
-                    if (helpRequests.hasOwnProperty(i)) {
-                        socket.emit('addToQueue', helpRequests[i]);
-                    }
-                }
-                for (var j in bathroomRequests) {
-                    if (bathroomRequests.hasOwnProperty(j)) {
-                        socket.emit('addToBathroomQueue', bathroomRequests[j]);
-                    }
-                }
-            },
-            function(errMsg){
-                socket.emit('loginAuth', false);
-            });
-    });
-
-    socket.on('changePass', function(passObj){
-        var auth = login.validate(passObj.old);
-        auth.then(function(){
-            if (passObj.new.length > 7){
-                var newHash = login.hashPassword(passObj.new);
-                login.updatePasswordFile(newHash);
-                socket.emit("changePassResult", "Updated password.");
-            }
-            else socket.emit("changePassResult", "Update failed.");
-        },
-        function(){
-            socket.emit("changePassResult", "Update failed.");
-        });
-    });
-
-    socket.on('studentRequest', function(student){
-        console.log("Received help request");
-
-        helpRequests[hCount] = student;
-        hCount++;
-
-        // Send to teacher page
-        io.emit('addToQueue', student);
-    });
-
-    socket.on('bathroomRequest', function(student){
-        console.log("Received bathroom request");
-
-        bathroomRequests[bCount] = student;
-        bCount++;
-
-        // Send to bathroom list
-        io.emit('addToBathroomQueue', student);
-    });
+var db = new DB({
+    host: "localhost",
+    user: "mnbryant_queue",
+    password: "CYL88ix4stDdxpuarm86RLjf",
+    database: "mnbryant_studentqueue",
+    table: "config"
 });
 
+var createConfig = db.createConfigTable();
+
+createConfig.then(
+    function(){
+        var load = db.load();
+
+        load.then(
+            function(){
+                app.use("/admin", express.static(path.join(__dirname, path.join('public', 'siteAdmin'))));
+
+                Object.keys(db.queues).forEach(function(name){
+                    app.use("/" + name, express.static(path.join(__dirname, path.join('public', 'queue'))));
+
+                    var queue = db.queues[name];
+                    io.on('connection', function(socket){
+                        console.log("Connection");
+
+                        // Only allow teacher/aide actions if authenticated
+                        socket.on('login', function(password){
+                            // Validate password against hash currently stored in text file
+                            var auth = db.validatePassword(name, password);
+                            // TODO: Change so that one login can provide multiple pages based on argument?
+                            auth.then(
+                                function(){
+                                    // Moved teacher socket handlers here so that they only work after validation
+                                    socket.on('removeRequest', function(id){
+                                        var realId = id.slice(1,7);
+                                        var type = id.slice(7);
+                                        if (type === "Help"){
+                                            queue.remove(realId).then(
+                                                function(){
+                                                    console.log("Successfully removed request from " + realId);
+                                                },
+                                                function(err){console.log(err)}
+                                            );
+                                        }
+                                        else {
+                                            console.log("Could not remove request from database");
+                                        }
+                                        console.log("Student with id " + id + " was resolved");
+                                        io.emit('removeStudent', id);
+                                    });
+
+                                    socket.on('clearedAll', function(){
+                                        queue.reset();
+                                        io.emit('clearAll');
+                                    });
+
+                                    socket.emit('loginAuth', true);
+
+                                    var getRequests = queue.getAll();
+                                    getRequests.then(
+                                        function(requests){
+                                            requests.forEach(function(req, i, arr){
+                                                socket.emit("addToQueue", {id: req.studentid, name:req.name, problem: req.description}) ;
+                                            });
+                                        },
+                                        function(err){
+                                            console.log(err);
+                                        }
+                                    );
+                                },
+                                function(errMsg){
+                                    socket.emit('loginAuth', false);
+                                });
+                        });
+
+                        socket.on('changePass', function(passObj){
+                            var auth = db.validatePassword(name, passObj.old);
+                            auth.then(function(){
+                                    if (passObj.new.length > 7){
+                                        db.setHash(name, passObj.new).then(function(){
+                                                socket.emit("changePassResult", "Updated password.");
+                                            },
+                                            function(err){
+                                                socket.emit("changePassResult", err.toString());
+                                            });
+
+                                    }
+                                    else socket.emit("changePassResult", "Update failed. Invalid password.");
+                                },
+                                function(){
+                                    socket.emit("changePassResult", "Update failed.");
+                                });
+                        });
+
+                        socket.on('studentRequest', function(student){
+                            console.log("Received help request");
+
+                            queue.add(student);
+
+                            // Send to teacher page
+                            io.emit('addToQueue', student);
+                        });
+                    });
+                });
+            }
+        );
+    }
+)
+
 http.listen(3000, function(){
-  console.log('listening on *:3000');
+    console.log('listening on *:3000');
 });

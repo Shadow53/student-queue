@@ -2,7 +2,7 @@ var crypto = require('crypto');
 var fs = require('promised-io/fs');
 var util = require('util');
 
-function validate(password){
+function validate(queue, password){
 
     var Deferred = require("promised-io/promise").Deferred;
     var defer = new Deferred();

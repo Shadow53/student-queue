@@ -4,19 +4,6 @@ function isBathroom(){
 }
 
 $(document).ready(function(){
-
-  $("input[name='isBathroom'][value='false']").attr("checked", "checked");
-
-  $("input[name='isBathroom']").click(function(){
-    var problemInput = $("#problemText");
-    if (isBathroom()){
-      problemInput.prop("disabled", "disabled");
-    }
-    else {
-      problemInput.removeAttr("disabled");
-    }
-  });
-
   var socket = io();
   $("#submitHelpRequest").click(function(e){
     var sName = $("#studentName");
@@ -37,18 +24,11 @@ $(document).ready(function(){
       else {
         if (studentName.length > 3){
 
-          if (isBathroom()){
-            socket.emit('bathroomRequest', {name: studentName, id: studentId, time:
-                Date.now()});
-            alert("Bathroom request sent");
-          }
-          else {
-            socket.emit('studentRequest', { name: studentName, id: studentId,
-              problem: problemText });
-            alert("Request sent");
-          }
+          socket.emit('studentRequest', { name: studentName, id: studentId,
+            problem: problemText });
+          alert("Request sent");
+
           $("input[type='text']").val("");
-          $("input[name='isBathroom'][value='false']").attr("checked", "checked");
           $("textarea").val("");
         }
         else {

@@ -8,7 +8,8 @@
   "dependencies": {
     "socket.io":  "1.4.x",
     "express": "4.x",
-    "promised-io": "0.3.x"
+    "promised-io": "0.3.x",
+    "student-queue-mysql-plugin": "0.1.x"
   },
   "description": "student queue list backend",
   "installable": true,
