@@ -31,6 +31,24 @@ createConfig.then(
         load.then(
             function(){
                 app.use("/admin", express.static(path.join(__dirname, path.join('public', 'siteAdmin'))));
+                io.on("connection", function(socket){
+                    console.log("Admin connection");
+                    socket.on("addNewQueue", function(queue){
+                        if (queue.hasOwnProperty("name") && queue.hasOwnProperty("password")){
+                            db.addNewQueue(queue).then(
+                                function(){
+                                    socket.emit("addedNewQueue", true);
+                                },
+                                function(err){
+                                    socket.emit("addedNewQueue", false, err);
+                                }
+                            );
+                        }
+                        else {
+                            socket.emit("addedNewQueue", false, new Error("Missing either name or password"));
+                        }
+                    });
+                });
 
                 Object.keys(db.queues).forEach(function(name){
                     app.use("/" + name, express.static(path.join(__dirname, path.join('public', 'queue'))));
