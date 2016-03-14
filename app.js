@@ -32,11 +32,11 @@ StudentQueue.prototype.start = function(){
     app.use("/js", express.static(path.join(__dirname, path.join('public', 'js'))));
     app.use("/css", express.static(path.join(__dirname, path.join('public', 'css'))));
 
-    var createConfig = db.createConfigTable();
+    var createConfig = that.db.createConfigTable();
 
     createConfig.then(
         function(){
-            var load = db.load();
+            var load = that.db.load();
 
             load.then(
                 function(){
@@ -61,7 +61,7 @@ StudentQueue.prototype.start = function(){
                         });
                     });
 
-                    Object.keys(db.queues).forEach(function(name){
+                    Object.keys(that.db.queues).forEach(function(name){
                         app.use("/" + name, express.static(path.join(__dirname, path.join('public', 'queue'))));
 
                         var queue =that.db.queues[name];
