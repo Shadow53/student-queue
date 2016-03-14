@@ -3,8 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link href="/css/foundation-flex.css" rel="stylesheet">
+    <link href="/css/jquery-ui.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="/js/jquery-ui.min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function(){
+            var socket = io();
+            $("#addTest").click(function(e){
+                socket.emit("addNewQueue", {
+                    name: "Test",
+                    password: "password"
+                });
+            });
+
+            socket.on("addedNewQueue", function(success, err){
+                if (success){
+                    alert("Successfully added new queue");
+                }
+                else {
+                    alert("New Queue FAILED " + err);
+                }
+            });
+        });
+    </script>
 </head>
 <body>
-    This will be the site admin page
+    <button id="addTest" type="button" class="button">Add Test Queue</button>
 </body>
 </html>

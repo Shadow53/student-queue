@@ -10,44 +10,66 @@ var fs = require('fs');
 var path = require('path');
 var DB = require('student-queue-mysql-plugin');
 
-function StudentQueue(config){
-
-    if (!(config.hasOwnProperty("host") && config.hasOwnProperty("user") && config.hasOwnProperty("password") &&
-        config.hasOwnProperty("database"))){
-        throw new Error("Missing one or more of the required options: host, user, password, database");
+function StudentQueue(config) {
+    if (!(config.hasOwnProperty("host") && config.hasOwnProperty("user") &&
+        config.hasOwnProperty("password") && config.hasOwnProperty("database"))) {
+        throw new Error("Missing one of the required properties: host, user, password, database");
     }
 
-    this.db = new DB(this.config);
+    this.db = new DB({
+        host: "localhost",
+        user: "mnbryant_queue",
+        password: "CYL88ix4stDdxpuarm86RLjf",
+        database: "mnbryant_studentqueue",
+        table: "config"
+    });
 }
 
 StudentQueue.prototype.start = function(){
-    var that = this;
-
     app.use(express.static(path.join(__dirname, 'public')));
     app.use("/js", express.static(path.join(__dirname, path.join('public', 'js'))));
     app.use("/css", express.static(path.join(__dirname, path.join('public', 'css'))));
 
-    var createConfig =that.db.createConfigTable();
+    var createConfig = db.createConfigTable();
 
     createConfig.then(
         function(){
-            var load =that.db.load();
+            var load = db.load();
 
             load.then(
                 function(){
                     app.use("/admin", express.static(path.join(__dirname, path.join('public', 'siteAdmin'))));
 
+                    io.on("connection", function(socket){
+                        console.log("Admin connection");
+                        socket.on("addNewQueue", function(queue){
+                            if (queue.hasOwnProperty("name") && queue.hasOwnProperty("password")){
+                                db.addNewQueue(queue).then(
+                                    function(){
+                                        socket.emit("addedNewQueue", true);
+                                    },
+                                    function(err){
+                                        socket.emit("addedNewQueue", false, err);
+                                    }
+                                );
+                            }
+                            else {
+                                socket.emit("addedNewQueue", false, new Error("Missing either name or password"));
+                            }
+                        });
+                    });
+
                     Object.keys(db.queues).forEach(function(name){
                         app.use("/" + name, express.static(path.join(__dirname, path.join('public', 'queue'))));
 
-                        var queue =that.db.queues[name];
+                        var queue = db.queues[name];
                         io.on('connection', function(socket){
                             console.log("Connection");
 
                             // Only allow teacher/aide actions if authenticated
                             socket.on('login', function(password){
                                 // Validate password against hash currently stored in text file
-                                var auth =that.db.validatePassword(name, password);
+                                var auth = db.validatePassword(name, password);
                                 // TODO: Change so that one login can provide multiple pages based on argument?
                                 auth.then(
                                     function(){
@@ -95,10 +117,10 @@ StudentQueue.prototype.start = function(){
                             });
 
                             socket.on('changePass', function(passObj){
-                                var auth =that.db.validatePassword(name, passObj.old);
+                                var auth = db.validatePassword(name, passObj.old);
                                 auth.then(function(){
                                         if (passObj.new.length > 7){
-                                           that.db.setHash(name, passObj.new).then(function(){
+                                            db.setHash(name, passObj.new).then(function(){
                                                     socket.emit("changePassResult", "Updated password.");
                                                 },
                                                 function(err){
