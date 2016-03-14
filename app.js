@@ -26,6 +26,8 @@ function StudentQueue(config) {
 }
 
 StudentQueue.prototype.start = function(){
+    var that = this;
+
     app.use(express.static(path.join(__dirname, 'public')));
     app.use("/js", express.static(path.join(__dirname, path.join('public', 'js'))));
     app.use("/css", express.static(path.join(__dirname, path.join('public', 'css'))));
@@ -44,7 +46,7 @@ StudentQueue.prototype.start = function(){
                         console.log("Admin connection");
                         socket.on("addNewQueue", function(queue){
                             if (queue.hasOwnProperty("name") && queue.hasOwnProperty("password")){
-                                db.addNewQueue(queue).then(
+                               that.db.addNewQueue(queue).then(
                                     function(){
                                         socket.emit("addedNewQueue", true);
                                     },
@@ -62,14 +64,14 @@ StudentQueue.prototype.start = function(){
                     Object.keys(db.queues).forEach(function(name){
                         app.use("/" + name, express.static(path.join(__dirname, path.join('public', 'queue'))));
 
-                        var queue = db.queues[name];
+                        var queue =that.db.queues[name];
                         io.on('connection', function(socket){
                             console.log("Connection");
 
                             // Only allow teacher/aide actions if authenticated
                             socket.on('login', function(password){
                                 // Validate password against hash currently stored in text file
-                                var auth = db.validatePassword(name, password);
+                                var auth =that.db.validatePassword(name, password);
                                 // TODO: Change so that one login can provide multiple pages based on argument?
                                 auth.then(
                                     function(){
@@ -117,10 +119,10 @@ StudentQueue.prototype.start = function(){
                             });
 
                             socket.on('changePass', function(passObj){
-                                var auth = db.validatePassword(name, passObj.old);
+                                var auth =that.db.validatePassword(name, passObj.old);
                                 auth.then(function(){
                                         if (passObj.new.length > 7){
-                                            db.setHash(name, passObj.new).then(function(){
+                                           that.db.setHash(name, passObj.new).then(function(){
                                                     socket.emit("changePassResult", "Updated password.");
                                                 },
                                                 function(err){
