@@ -1,12 +1,9 @@
 {
   "contributors": [
-    {
-      "name": "Michael Bryant",
-      "email": "shadow53@shadow53.com"
-    }
+    "Shadow53 <shadow53@shadow53.com>"
   ],
   "dependencies": {
-    "socket.io":  "1.4.x",
+    "socket.io": "1.4.x",
     "express": "4.x",
     "promised-io": "0.3.x",
     "student-queue-mysql-plugin": "0.1.x"
@@ -14,15 +11,29 @@
   "description": "student queue list backend",
   "installable": true,
   "maintainers": [
-    {
-      "name": "Shadow53",
-      "email": "shadow53@shadow53.com"
-    }
+    "Shadow53 <shadow53@shadow53.com>"
   ],
   "name": "student-queue",
   "repository": {
     "type": "git",
     "url": "git://github.com/Shadow53/student-queue.git"
   },
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Shadow53/student-queue/issues"
+  },
+  "homepage": "https://github.com/Shadow53/student-queue#readme",
+  "version": "0.4.0",
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "student",
+    "queue",
+    "help",
+    "request"
+  ],
+  "author": "Shadow53"
 }
