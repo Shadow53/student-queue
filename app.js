@@ -16,13 +16,7 @@ function StudentQueue(config) {
         throw new Error("Missing one of the required properties: host, user, password, database");
     }
 
-    this.db = new DB({
-        host: "localhost",
-        user: "mnbryant_queue",
-        password: "CYL88ix4stDdxpuarm86RLjf",
-        database: "mnbryant_studentqueue",
-        table: "config"
-    });
+    this.db = new DB(config);
 }
 
 StudentQueue.prototype.start = function(){
