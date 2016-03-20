@@ -5,6 +5,40 @@ $(document).ready(function(){
     var socket = io("/admin");
 
     login(socket).done(function(){
+
+        function changePassword(){
+            var old = $("#oldAdmin");
+            var p1 = $("#pass1Admin");
+            var p2 = $("#pass2Admin");
+
+            var oldPass = old.val();
+            var pass1 = p1.val();
+            var pass2 = p2.val();
+
+            if (pass1 !== pass2){
+                $("#adminPassChangeError").val("(Passwords did not match)");
+            }
+            else {
+                socket.emit("changePass", {old: oldPass, new: pass1});
+            }
+            p1.val("");
+            p2.val("");
+            old.val("");
+        }
+        $("#changeAdminPass").on("click", function(){
+            changePassword();
+        });
+
+        $("#pass1Admin, #pass2Admin").on("keypress", function(e){
+            if (e.keyCode === 13){
+                changePassword();
+            }
+        });
+
+        socket.on("changePassResult", function(msg){
+            $("#adminPassChangeError").text(msg);
+        });
+
         socket.on("giveAllQueues", function(err, queues){
             if (err){
                 console.error(err);

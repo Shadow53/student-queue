@@ -85,6 +85,25 @@ StudentQueue.prototype.start = function(){
                                             socket.emit("deletedQueue", new Error("Queue with name " + name + " does not exist"));
                                         }
                                     });
+
+                                    socket.on('changePass', function(passObj){
+                                        var auth = that.db.validatePassword("admin", passObj.old);
+                                        auth.then(function(){
+                                                if (passObj.new.length > 7){
+                                                    that.db.setHash("admin", passObj.new).then(function(){
+                                                            socket.emit("changePassResult", "Updated password.");
+                                                        },
+                                                        function(err){
+                                                            socket.emit("changePassResult", err.toString());
+                                                        });
+
+                                                }
+                                                else socket.emit("changePassResult", "Update failed. Invalid password. Must be at least 8 characters long");
+                                            },
+                                            function(){
+                                                socket.emit("changePassResult", "Update failed.");
+                                            });
+                                    });
                                 },
                                 function(err){
                                     socket.emit("loginAuth", false);

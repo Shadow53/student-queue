@@ -67,6 +67,44 @@
                 <textarea name="desc" id="desc"></textarea><br/>
                 <button type="button" class="button" id="makeNewQueue">Create</button>
             </div>
+            <div id="sitePrefs">
+                <form name="adminPassChange">
+                    <div class="row">
+                        <div class="large-12 medium-12 small-12 columns text-center">
+                            <h2>Changing the Site Admin password <span id="adminPassChangeError"></span></h2>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="large-4 medium-4 small-4 columns text-right align-self-middle">
+                            <label for="oldAdmin">Old Password: </label>
+                        </div>
+                        <div class="large-8 medium-8 small-8 columns text-left align-self-middle">
+                            <input type="password" name="old" id="oldAdmin"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="large-4 medium-4 small-4 columns text-right align-self-middle">
+                            <label for="pass1">New Password: </label>
+                        </div>
+                        <div class="large-4 medium-4 small-4 columns text-left align-self-middle">
+                            <input type="password" name="pass1" id="pass1Admin"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="large-4 medium-4 small-4 columns text-right align-self-middle">
+                            <label for="pass2">Confirm New Password: </label>
+                        </div>
+                        <div class="large-4 medium-4 small-4 columns text-left align-self-middle">
+                            <input type="password" name="pass2" id="pass2Admin"/>
+                        </div>
+                    </div>
+                    <div class="row align-center">
+                        <div class="large-4 medium-8 small-12 columns large-text-left medium-text-left small-text-center">
+                            <button type="button" class="button" id="changeAdminPass">Change Password</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
