@@ -39,47 +39,57 @@ StudentQueue.prototype.start = function(){
                     var admin = io.of("/admin");
                     admin.on("connection", function(socket){
                         console.log("Admin connection");
-                        socket.on("addNewQueue", function(queue){
-                            if (queue.hasOwnProperty("name") && queue.hasOwnProperty("password")){
-                               that.db.addNewQueue(queue).then(
-                                    function(){
-                                        socket.emit("addedNewQueue");
-                                    },
-                                    function(err){
-                                        socket.emit("addedNewQueue", err);
-                                    }
-                                );
-                            }
-                            else {
-                                socket.emit("addedNewQueue", new Error("Missing either name or password"));
-                            }
-                        });
-                        
-                        socket.on("getAllQueues", function(){
-                            that.db.getAllQueues().then(
-                                function(result){
-                                    socket.emit("giveAllQueues", null, result);
+                        socket.on("login", function(password){
+                            var auth = that.db.validatePassword("admin", password);
+                            auth.then(
+                                function(){
+                                    socket.on("addNewQueue", function(queue){
+                                        if (queue.hasOwnProperty("name") && queue.hasOwnProperty("password")){
+                                            that.db.addNewQueue(queue).then(
+                                                function(){
+                                                    socket.emit("addedNewQueue");
+                                                },
+                                                function(err){
+                                                    socket.emit("addedNewQueue", err);
+                                                }
+                                            );
+                                        }
+                                        else {
+                                            socket.emit("addedNewQueue", new Error("Missing either name or password"));
+                                        }
+                                    });
+
+                                    socket.on("getAllQueues", function(){
+                                        that.db.getAllQueues().then(
+                                            function(result){
+                                                socket.emit("giveAllQueues", null, result);
+                                            },
+                                            function(err){
+                                                socket.emit("giveAllQueues", err);
+                                            }
+                                        )
+                                    });
+
+                                    socket.on("deleteQueue", function(name){
+                                        if (that.db.queues.hasOwnProperty(name)){
+                                            that.db.deleteQueue(name).then(
+                                                function(){
+                                                    socket.emit("deletedQueue");
+                                                },
+                                                function(err){
+                                                    socket.emit("deletedQueue", err);
+                                                }
+                                            );
+                                        }
+                                        else {
+                                            socket.emit("deletedQueue", new Error("Queue with name " + name + " does not exist"));
+                                        }
+                                    });
                                 },
                                 function(err){
-                                    socket.emit("giveAllQueues", err);
+                                    socket.emit("loginAuth", false);
                                 }
                             )
-                        });
-
-                        socket.on("deleteQueue", function(name){
-                           if (that.db.queues.hasOwnProperty(name)){
-                               that.db.deleteQueue(name).then(
-                                   function(){
-                                       socket.emit("deletedQueue");
-                                   },
-                                   function(err){
-                                       socket.emit("deletedQueue", err);
-                                   }
-                               );
-                           }
-                           else {
-                               socket.emit("deletedQueue", new Error("Queue with name " + name + " does not exist"));
-                           }
                         });
                     });
 
