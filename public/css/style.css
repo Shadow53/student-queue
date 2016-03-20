@@ -12,8 +12,16 @@ body {
     max-width: 900px;
     min-width: 360px;
     width: 95%;
-    background-color: #999999;
     padding: 10px;
+}
+
+#main,
+#main div.row,
+.ui-tabs-nav,
+.ui-tabs-panel
+{
+    background-color: #999999;
+    border: none;
 }
 
 .queue-item{
@@ -43,12 +51,12 @@ body {
     font-size: 3em;
 }
 
-.button {
+.button, li[role="tab"] {
     color: #ffffff;
     background-color: #444444;
 }
 
-.button:hover, .button:active {
+.button:hover, .button:active, li[role="tab"].ui-tabs-active, li[role="tab"].ui-tabs-active:hover, li[role="tab"].ui-tabs-active:active {
     background-color: #bbbbbb;
     color: #000000;
 }

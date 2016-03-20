@@ -9,9 +9,10 @@
 
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
-    <script src="/js/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="/js/siteAdmin.js" type="text/javascript"></script>
     <script>
-        $(document).ready(function(){
+        /*$(document).ready(function(){
             var socket = io("/admin");
             $("#addTest").click(function(e){
                 socket.emit("addNewQueue", {
@@ -20,18 +21,52 @@
                 });
             });
 
-            socket.on("addedNewQueue", function(success, err){
-                if (success){
-                    alert("Successfully added new queue");
-                }
-                else {
+            socket.on("addedNewQueue", function(err){
+                if (err){
                     alert("New Queue FAILED " + err);
                 }
+                else {
+                    alert("Successfully added new queue");
+                }
             });
-        });
+        });*/
     </script>
 </head>
 <body>
-    <button id="addTest" type="button" class="button">Add Test Queue</button>
+<div id="main">
+    <div class="row">
+        <div class="large-12 medium-12 small-12 columns text-center">
+            <h1>Site Administration</h1>
+        </div>
+    </div>
+    <div class="row" id="queueAdmin">
+        <div class="large-3 medium-4 small-12 columns">
+            <ol>
+                <li><a href="#newQueue">Add New Queue</a></li>
+                <li><a href="#existingQueues">View/Modify Existing Queues</a></li>
+            </ol>
+        </div>
+        <div class="large-9 medium-8 small-12 columns">
+            <div id="existingQueues">
+
+            </div>
+            <div id="newQueue">
+                <label for="newName"><h4>New Queue Name</h4></label>
+                <small><em>Alphanumeric only, no spaces.</em></small><br/>
+                <input type="text" name="newName" id="newName" required/>
+                <br/>
+                <label for="pass1"><h4>Queue Admin Password</h4></label>
+                <small><em>At least 8 characters!</em></small><br/>
+                <input type="password" name="pass1" id="pass1" required/>
+                <br/>
+                <label for="pass2"><h4>Confirm Password</h4></label>
+                <input type="password" name="pass2" id="pass2" required/>
+                <label for="desc"><h4>Queue Description</h4></label>
+                <textarea name="desc" id="desc"></textarea><br/>
+                <button type="button" class="button" id="makeNewQueue">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
