@@ -1,8 +1,17 @@
 /**
  * Created by michael on 2/3/16.
  */
-var socket = io();
+var socket;
 $(document).ready(function(){
+
+    var pathArr = document.location.pathname.split("/");
+    var index = pathArr.indexOf("teacher", pathArr.length - 3);
+    if (index === -1 ){
+        throw new Error("Die: Cannot parse the path.");
+    }
+
+    var room = pathArr[index - 1];
+    socket = io("/" + room.toLowerCase());
 
     var loginModal = $("#login").dialog({
         buttons: [{

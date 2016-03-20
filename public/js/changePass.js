@@ -1,7 +1,15 @@
 /**
  * Created by michael on 2/3/16.
  */
-var socket = io();
+var pathArr = document.location.pathname.split("/");
+var index = pathArr.indexOf("admin", pathArr.length - 3);
+if (index === -1 ){
+    throw new Error("Die: Cannot parse the path.");
+}
+
+var room = pathArr[index - 1];
+socket = io("/" + room.toLowerCase());
+
 $(document).ready(function(){
 
     $("#changePass").on("click", function(){

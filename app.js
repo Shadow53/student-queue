@@ -36,7 +36,8 @@ StudentQueue.prototype.start = function(){
                 function(){
                     app.use("/admin", express.static(path.join(__dirname, path.join('public', 'siteAdmin'))));
 
-                    io.on("connection", function(socket){
+                    var admin = io.of("/admin");
+                    admin.on("connection", function(socket){
                         console.log("Admin connection");
                         socket.on("addNewQueue", function(queue){
                             if (queue.hasOwnProperty("name") && queue.hasOwnProperty("password")){
@@ -56,10 +57,11 @@ StudentQueue.prototype.start = function(){
                     });
 
                     Object.keys(that.db.queues).forEach(function(name){
-                        app.use("/" + name, express.static(path.join(__dirname, path.join('public', 'queue'))));
+                        app.use("/" + name.toLowerCase(), express.static(path.join(__dirname, path.join('public', 'queue'))));
 
                         var queue = that.db.queues[name];
-                        io.on('connection', function(socket){
+                        var room = io.of("/" + name.toLowerCase());
+                        room.on('connection', function(socket){
                             console.log("Connection");
 
                             // Only allow teacher/aide actions if authenticated
@@ -85,12 +87,12 @@ StudentQueue.prototype.start = function(){
                                                 console.log("Could not remove request from database");
                                             }
                                             console.log("Student with id " + id + " was resolved");
-                                            io.emit('removeStudent', id);
+                                            room.emit('removeStudent', id);
                                         });
 
                                         socket.on('clearedAll', function(){
                                             queue.reset();
-                                            io.emit('clearAll');
+                                            room.emit('clearAll');
                                         });
 
                                         socket.emit('loginAuth', true);
@@ -137,7 +139,7 @@ StudentQueue.prototype.start = function(){
                                 queue.add(student);
 
                                 // Send to teacher page
-                                io.emit('addToQueue', student);
+                                room.emit('addToQueue', student);
                             });
                         });
                     });
