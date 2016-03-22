@@ -12,8 +12,8 @@ var DB = require('student-queue-mysql-plugin');
 
 function StudentQueue(config) {
     if (!(config.hasOwnProperty("host") && config.hasOwnProperty("user") &&
-        config.hasOwnProperty("password") && config.hasOwnProperty("db"))) {
-        throw new Error("Missing one of the required properties: host, user, password, db");
+        config.hasOwnProperty("password") && config.hasOwnProperty("database"))) {
+        throw new Error("Missing one of the required properties: host, user, password, database");
     }
 
     this.db = new DB(config);
