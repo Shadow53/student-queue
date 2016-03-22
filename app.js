@@ -104,6 +104,8 @@ StudentQueue.prototype.start = function(){
                                                 socket.emit("changePassResult", "Update failed.");
                                             });
                                     });
+
+                                    socket.emit("loginAuth", true);
                                 },
                                 function(err){
                                     socket.emit("loginAuth", false);
