@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+
+    <link href="/css/foundation-flex.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("#searchQueue").on("click", function(){
+                var location = document.location.href.slice(0, document.location.href.indexOf("index.html"));
+                if (location.slice(0, location.lastIndexOf("/")) !== location.length - 1)
+                    location += "/";
+                document.location.href = location + $("#queueName").val() + "/";
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="main">
+        <div class="row">
+            <div class="large-12 medium-12 small-12 columns text-center">
+                <h1>Welcome to the Queue</h1>
+            </div>
+            <div class="large-6 medium-6 small-12 columns">
+                <p>This page is still in the works. In the meantime, try navigating to a help queue by entering the name in the text box and clicking "Go!"</p>
+                <p>Note: If the queue does not exist, just hit the back button to come back here and get a link from your teacher.</p>
+            </div>
+            <div class="large-6 medium-6 small-12 columns">
+                <label>Queue search: <input id="queueName"></label>
+                <button id="searchQueue">Go!</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

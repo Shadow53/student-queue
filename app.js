@@ -226,6 +226,9 @@ StudentQueue.prototype.start = function(){
         });
     }
 
+    // Put this here because the program will use this path last:
+    app.use(express.static(path.join(__dirname, path.join('public', 'home'))))
+
     http.listen(3000, function(){
         console.log('listening on *:3000');
     });
