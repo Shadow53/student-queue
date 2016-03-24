@@ -75,6 +75,16 @@ StudentQueue.prototype.start = function(){
                                         if (that.db.queues.hasOwnProperty(name)){
                                             that.db.deleteQueue(name).then(
                                                 function(){
+                                                    delete io.nsps["/" + name.toLowerCase()];
+                                                    // The app stack has a "path" property that *should* contain the path name,
+                                                    // e.g. "/example", however most of the time it is undefined. Instead,
+                                                    // do pattern matching on the regex - how ironic.
+                                                    app._router.stack.forEach(function (item, i, stack){
+                                                        // This assumption is made because the name is alphanumeric only
+                                                       if (item.regexp.toString() === "/^\\/" + name.toLowerCase() + "\\/?(?=\\/|$)/i"){
+                                                           stack.splice(i, 1);
+                                                       }
+                                                    });
                                                     socket.emit("deletedQueue");
                                                 },
                                                 function(err){
@@ -116,6 +126,7 @@ StudentQueue.prototype.start = function(){
                     });
 
                     Object.keys(that.db.queues).forEach(initQueue);
+                    console.log("Done loading program")
                 }
             );
         }
