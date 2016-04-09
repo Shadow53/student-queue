@@ -3,13 +3,19 @@
  */
 function login(socket){
 
+    function submitLogin(e){
+        var pw = $("#pwInput").val();
+        socket.emit('login', pw);
+        e.preventDefault();
+    }
+
     var loginDefer = $.Deferred();
 
     var container = $("<div></div>", {
         id: "login"
     }).html('<form name="loginDiv">' +
         '<label>Please enter the teacher password: <input type="password" name="pw" id="pwInput"></label>' +
-        '<button type="button" class="button" id="btnLogin">Authenticate</button>' +
+        //'<button type="button" class="button" id="btnLogin">Authenticate</button>' +
         '<span id="loginStatus"></span>' +
         '</form>');
 
@@ -22,25 +28,16 @@ function login(socket){
             text: "Login",
             icons: {
                 primary: "ui-icon-close"
-            }
+            },
+            click: submitLogin
         }],
         closeOnEscape: false,
         modal: true,
         title: "Authorization Required"
     });
 
-    $("#btnLogin").on("click", function(e){
-        var pw = $("#pwInput").val();
-        socket.emit('login', pw);
-    });
-
     $("#pwInput").on("keypress", function(e){
-        if (e.keyCode === 13){
-            var pw = $("#pwInput").val();
-            socket.emit('login', pw);
-            e.preventDefault();
-            //return false;
-        }
+        if (e.keyCode === 13) submitLogin(e);
     });
 
     socket.on('loginAuth', function(success){
