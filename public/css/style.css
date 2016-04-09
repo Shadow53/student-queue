@@ -70,7 +70,7 @@ body {
     height: 10rem;
 }
 
-#loginStatus {
+.status {
     color: #ff0000;
 }
 

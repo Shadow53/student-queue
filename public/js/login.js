@@ -16,7 +16,7 @@ function login(socket){
     }).html('<form name="loginDiv">' +
         '<label>Please enter the teacher password: <input type="password" name="pw" id="pwInput"></label>' +
         //'<button type="button" class="button" id="btnLogin">Authenticate</button>' +
-        '<span id="loginStatus"></span>' +
+        '<span class="status"></span>' +
         '</form>');
 
     var overlay = $("<div id='overlay'></div>");

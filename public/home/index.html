@@ -14,7 +14,14 @@
                 var location = document.location.href.slice(0, document.location.href.indexOf("index.html"));
                 if (location.slice(0, location.lastIndexOf("/")) !== location.length - 1)
                     location += "/";
-                document.location.href = location + $("#queueName").val() + "/";
+                location += $("#queueName").val() + "/";
+
+                $.get(location).always(function(result, status){
+                    if (status === "success")
+                        document.location.href = location;
+                    else
+                        $("#qFound").text("Given help queue does not exist");
+                });
             });
         });
     </script>
@@ -31,7 +38,8 @@
             </div>
             <div class="large-6 medium-6 small-12 columns">
                 <label>Queue search: <input id="queueName"></label>
-                <button id="searchQueue">Go!</button>
+                <br/><button id="searchQueue" class="button">Go!</button>
+                <br/><span id="qFound" class="status"></span>
             </div>
         </div>
     </div>
