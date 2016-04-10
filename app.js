@@ -45,6 +45,7 @@ StudentQueue.prototype.start = function(){
                                 function(){
                                     socket.on("addNewQueue", function(queue){
                                         if (queue.hasOwnProperty("name") && queue.hasOwnProperty("password")){
+                                            queue.name = queue.name.toLowerCase();
                                             that.db.addNewQueue(queue).then(
                                                 function(){
                                                     initQueue(queue.name);
@@ -72,16 +73,17 @@ StudentQueue.prototype.start = function(){
                                     });
 
                                     socket.on("deleteQueue", function(name){
+                                        name = name.toLowerCase();
                                         if (that.db.queues.hasOwnProperty(name)){
                                             that.db.deleteQueue(name).then(
                                                 function(){
-                                                    delete io.nsps["/" + name.toLowerCase()];
+                                                    delete io.nsps["/" + name];
                                                     // The app stack has a "path" property that *should* contain the path name,
                                                     // e.g. "/example", however most of the time it is undefined. Instead,
                                                     // do pattern matching on the regex - how ironic.
                                                     app._router.stack.forEach(function (item, i, stack){
                                                         // This assumption is made because the name is alphanumeric only
-                                                       if (item.regexp.toString() === "/^\\/" + name.toLowerCase() + "\\/?(?=\\/|$)/i"){
+                                                       if (item.regexp.toString() === "/^\\/" + name + "\\/?(?=\\/|$)/i"){
                                                            stack.splice(i, 1);
                                                        }
                                                     });
@@ -133,10 +135,11 @@ StudentQueue.prototype.start = function(){
     );
 
     function initQueue(name) {
-        app.use("/" + name.toLowerCase(), express.static(path.join(__dirname, path.join('public', 'queue'))));
+        name = name.toLowerCase();
+        app.use("/" + name, express.static(path.join(__dirname, path.join('public', 'queue'))));
 
         var queue = that.db.queues[name];
-        var room = io.of("/" + name.toLowerCase());
+        var room = io.of("/" + name);
         room.on('connection', function (socket) {
             console.log("Connection");
 
