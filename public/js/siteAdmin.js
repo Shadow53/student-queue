@@ -25,6 +25,7 @@ $(document).ready(function(){
             p2.val("");
             old.val("");
         }
+        
         $("#changeAdminPass").on("click", function(){
             changePassword();
         });
@@ -45,40 +46,44 @@ $(document).ready(function(){
             }
             else {
                 var accordion = $("#existingQueues");
-                queues.forEach(function(queue, i, arr){
-                    var name = queue.name.toLowerCase();
-                    var title = $("<h3></h3>", {
-                        id: name + "Title",
-                        text: name.charAt(0).toUpperCase() + name.slice(1)
-                    });
-                    var content = $("<div></div>", {
-                        id: name + "Content"
-                    });
-                    content.html("<p>" + (queue.description === null ? "<em>This queue has no description.</em>" : queue.description) + "</p>");
-                    // TODO: Add ability to change password from here w/out verifying old?
-                    var delbtn = $("<button></button>", {
-                        id: name + "DeleteBtn",
-                        text: "Delete",
-                        'class': "button",
-                        on: {
-                            click: function(e){
-                                socket.emit("deleteQueue", queue.name);
+                var startTab = 0;
+                if (queues.length > 0){
+                    startTab = 1;
+                    queues.forEach(function(queue, i, arr){
+                        var name = queue.name.toLowerCase();
+                        var title = $("<h3></h3>", {
+                            id: name + "Title",
+                            text: name.charAt(0).toUpperCase() + name.slice(1)
+                        });
+                        var content = $("<div></div>", {
+                            id: name + "Content"
+                        });
+                        content.html("<p>" + (queue.description === null ? "<em>This queue has no description.</em>" : queue.description) + "</p>");
+                        // TODO: Add ability to change password from here w/out verifying old?
+                        var delbtn = $("<button></button>", {
+                            id: name + "DeleteBtn",
+                            text: "Delete",
+                            'class': "button",
+                            on: {
+                                click: function(e){
+                                    socket.emit("deleteQueue", queue.name);
+                                }
                             }
-                        }
-                    }).appendTo(content);
+                        }).appendTo(content);
 
-                    accordion.append(title, content);
-                });
+                        accordion.append(title, content);
+                    });
 
-                $(accordion).accordion({
-                    collapsible: true,
-                    active: false,
-                    heightStyle: "content",
-                    header: "h3"
-                });
+                    $(accordion).accordion({
+                        collapsible: true,
+                        active: false,
+                        heightStyle: "content",
+                        header: "h3"
+                    });
+                }
 
                 $("#queueAdmin").tabs({
-                    active: 1,
+                    active: startTab,
                     heightStyle: "content"
                 });
 
