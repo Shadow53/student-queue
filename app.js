@@ -21,6 +21,8 @@ function StudentQueue(config) {
     if (config.hasOwnProperty("cookieSecret"))
         this.secret = config.cookieSecret;
 
+    this.port = config.hasOwnProperty("port") ? config.port : 3000;
+
     this.db = new DB(config);
 }
 
@@ -299,8 +301,8 @@ StudentQueue.prototype.start = function(){
     // Put this here because the program will use this path last:
     app.use(express.static(path.join(__dirname, path.join('public', 'home'))))
 
-    http.listen(3000, function(){
-        console.log('listening on *:3000');
+    http.listen(this.port, function(){
+        console.log('listening on *:' + this.port);
     });
 };
 
