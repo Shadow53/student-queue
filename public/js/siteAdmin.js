@@ -2,49 +2,48 @@
  * Created by michael on 3/19/16.
  */
 $(document).ready(function(){
-    var socket = io("/admin");
+    //login().done(function(){
 
-    login(socket).done(function(){
-
-        function changePassword(){
+        $("#changeAdminPass").on("click", function changePassword(e){
             var old = $("#oldAdmin");
             var p1 = $("#pass1Admin");
             var p2 = $("#pass2Admin");
 
-            var oldPass = old.val();
-            var pass1 = p1.val();
-            var pass2 = p2.val();
-
-            if (pass1 !== pass2){
+            if (p1.val() !== p2.val()){
                 $("#adminPassChangeError").val("(Passwords did not match)");
+                p1.val("");
+                p2.val("");
+                old.val("");
+                return false;
             }
-            else {
-                socket.emit("changePass", {old: oldPass, new: pass1});
-            }
-            p1.val("");
-            p2.val("");
-            old.val("");
-        }
-        
-        $("#changeAdminPass").on("click", function(){
-            changePassword();
         });
 
         $("#pass1Admin, #pass2Admin").on("keypress", function(e){
-            if (e.keyCode === 13){
-                changePassword();
-            }
+            if (e.keyCode === 13)
+                $("#changeAdminPass").click();
         });
 
-        socket.on("changePassResult", function(msg){
-            $("#adminPassChangeError").text(msg);
-        });
+        $("#makeNewQueue").on("click", function makeNewQueue(e){
+            var p1 = $("#pass1");
+            var p2 = $("#pass2");
 
-        socket.on("giveAllQueues", function(err, queues){
-            if (err){
-                console.error(err);
+            if (p1.val() !== p2.val()) {
+                $("#newQueueError").val("Passwords did not match");
+                p1.val("");
+                p2.val("");
+                return false
             }
-            else {
+        });$("#logout").click(function(e){
+        var href = window.location.href;
+        $.post(href + (href.lastIndexOf("/") === href.length-1 ? "" : "/") + "logout");
+    })
+
+    var href = window.location.href;
+    document.logout.setAttribute("action", href + (href.lastIndexOf("/") === href.length - 1 ? "" : "/") + "logout");
+
+    $.get("/admin/queues")
+            .done(function(queues){
+                //queues = (queues !== "[]" ? JSON.parse(queues) : []);
                 var accordion = $("#existingQueues");
                 var startTab = 0;
                 if (queues.length > 0){
@@ -64,11 +63,25 @@ $(document).ready(function(){
                             id: name + "DeleteBtn",
                             text: "Delete",
                             'class': "button",
+                            type: "button",
                             on: {
-                                click: function(e){
-                                    socket.emit("deleteQueue", queue.name);
-                                }
-                            }
+                              click: function(e) {
+                                  $.ajax({
+                                      url: "/admin/queues",
+                                      method: "DELETE",
+                                      data: {
+                                          name: name
+                                      }
+                                  }).done(function(){ window.location.reload(); })
+                                      .fail(function(){alert("An error occurred while deleting queue: " + name)});
+                                  return false;
+                              }
+                            },
+                            type: "submit"
+                        }).appendTo($("<form></form>"), {
+                            name: name + "EditForm",
+                            method: "PUT",
+                            action: "/admin/queues"
                         }).appendTo(content);
 
                         accordion.append(title, content);
@@ -86,52 +99,6 @@ $(document).ready(function(){
                     active: startTab,
                     heightStyle: "content"
                 });
-
-                $("#makeNewQueue").on("click", function(e){
-                    var name = $("#newName").val();
-                    var pass1 = $("#pass1").val();
-                    var pass2 = $("#pass2").val();
-                    var desc = $("#desc").val();
-
-                    var nameRegExp = /(^\w)\w+/;
-                    if (!nameRegExp.test(name)){
-                        alert("There is something wrong with the name you inputted. Try again.");
-                    }
-                    else if (pass1.length < 8){
-                        alert("Your password is too short.");
-                    }
-                    else if (pass1 !== pass2){
-                        alert("Passwords do not match.");
-                    }
-                    else {
-                        var queue = {name: name, password: pass1};
-                        if (desc !== "") queue.description = desc;
-                        socket.emit("addNewQueue", queue);
-                    }
-                });
-
-                socket.on("addedNewQueue", function(err){
-                    if (err){
-                        console.error(err);
-                        alert(err.toString());
-                    }
-                    else {
-                        // Something better than refresh?
-                        location.reload();
-                    }
-                });
-
-                socket.on("deletedQueue", function(err){
-                    if (err){
-                        console.error(err);
-                        alert(err.toString());
-                    }
-                    else {
-                        location.reload();
-                    }
-                });
-            }
-        });
-        socket.emit("getAllQueues");
-    });
+            });
+    //});
 });

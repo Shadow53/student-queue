@@ -25,5 +25,13 @@
             </a>
         </div>
     </div>
+    <script>
+        var student = document.getElementById("student");
+        var teacher = document.getElementById("teacher");
+        var href = window.location.href;
+        href += (href.lastIndexOf("/") === href.length - 1 ? "" : "/");
+        student.setAttribute("href", href + "student");
+        teacher.setAttribute("href", href + "teacher");
+    </script>
 </body>
 </html>

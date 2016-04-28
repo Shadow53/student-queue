@@ -9,6 +9,8 @@ var io = require('socket.io')(http);
 var fs = require('fs');
 var path = require('path');
 var DB = require('student-queue-mysql-plugin');
+var cookieParser = require("cookie-parser");
+var bodyParser = require("body-parser");
 
 function StudentQueue(config) {
     if (!(config.hasOwnProperty("host") && config.hasOwnProperty("user") &&
@@ -16,12 +18,17 @@ function StudentQueue(config) {
         throw new Error("Missing one of the required properties: host, user, password, database");
     }
 
+    if (config.hasOwnProperty("cookieSecret"))
+        this.secret = config.cookieSecret;
+
     this.db = new DB(config);
 }
 
 StudentQueue.prototype.start = function(){
     var that = this;
 
+    app.use(cookieParser(this.secret !== undefined ? this.secret : "ThisIsMyDefaultSecret"));
+    app.use(bodyParser.urlencoded({extended:false}));
     app.use(express.static(path.join(__dirname, 'public')));
     app.use("/js", express.static(path.join(__dirname, path.join('public', 'js'))));
     app.use("/css", express.static(path.join(__dirname, path.join('public', 'css'))));
@@ -34,98 +41,178 @@ StudentQueue.prototype.start = function(){
 
             load.then(
                 function(){
-                    app.use("/admin", express.static(path.join(__dirname, path.join('public', 'siteAdmin'))));
+                    app.post("*/login", function(req, res){
+                        var path = req.path;
+                        var name = path.slice(1, path.slice(0, path.slice(0, -1).lastIndexOf("/")).length);
+                        if (name.indexOf("/") > -1) name = name.slice(0, name.lastIndexOf("/"));
+                        var auth = that.db.validatePassword(name, req.body.password);
+                        auth.then(
+                            function(){
+                                res.cookie("admin", "true", {
+                                    path: path.slice(0, path.lastIndexOf("/login")),
+                                    maxAge: 86400000, // One day
+                                    //secure: true,
+                                    //signed: true
+                                });
+                                //res.append('Set-Cookie', 'admin=true; Path=/; HttpOnly; maxAge=86400000');
 
-                    var admin = io.of("/admin");
-                    admin.on("connection", function(socket){
-                        console.log("Admin connection");
-                        socket.on("login", function(password){
-                            var auth = that.db.validatePassword("admin", password);
-                            auth.then(
-                                function(){
-                                    socket.on("addNewQueue", function(queue){
-                                        if (queue.hasOwnProperty("name") && queue.hasOwnProperty("password")){
-                                            queue.name = queue.name.toLowerCase();
-                                            that.db.addNewQueue(queue).then(
-                                                function(){
-                                                    initQueue(queue.name);
-                                                    socket.emit("addedNewQueue");
-                                                },
-                                                function(err){
-                                                    socket.emit("addedNewQueue", err);
-                                                }
-                                            );
-                                        }
-                                        else {
-                                            socket.emit("addedNewQueue", new Error("Missing either name or password"));
-                                        }
-                                    });
+                                res.redirect("back");
+                                //res.status(200).send();
+                            },
+                            function(err){
+                                res.status(403).end();
+                            }
+                        );
+                    });
 
-                                    socket.on("getAllQueues", function(){
-                                        that.db.getAllQueues().then(
-                                            function(result){
-                                                socket.emit("giveAllQueues", null, result);
-                                            },
-                                            function(err){
-                                                socket.emit("giveAllQueues", err);
-                                            }
-                                        )
-                                    });
+                    app.post("*/logout", function(req, res){
+                        var path = req.path;
 
-                                    socket.on("deleteQueue", function(name){
-                                        name = name.toLowerCase();
-                                        if (that.db.queues.hasOwnProperty(name)){
-                                            that.db.deleteQueue(name).then(
-                                                function(){
-                                                    delete io.nsps["/" + name];
-                                                    // The app stack has a "path" property that *should* contain the path name,
-                                                    // e.g. "/example", however most of the time it is undefined. Instead,
-                                                    // do pattern matching on the regex - how ironic.
-                                                    app._router.stack.forEach(function (item, i, stack){
-                                                        // This assumption is made because the name is alphanumeric only
-                                                       if (item.regexp.toString() === "/^\\/" + name + "\\/?(?=\\/|$)/i"){
-                                                           stack.splice(i, 1);
-                                                       }
-                                                    });
-                                                    socket.emit("deletedQueue");
-                                                },
-                                                function(err){
-                                                    socket.emit("deletedQueue", err);
-                                                }
-                                            );
-                                        }
-                                        else {
-                                            socket.emit("deletedQueue", new Error("Queue with name " + name + " does not exist"));
-                                        }
-                                    });
+                        res.clearCookie("admin", { path: path.slice(0, path.lastIndexOf("/logout")) });
+                        //res.append('Set-Cookie', 'admin=true; Path=/; HttpOnly; maxAge=86400000');
 
-                                    socket.on('changePass', function(passObj){
-                                        var auth = that.db.validatePassword("admin", passObj.old);
-                                        auth.then(function(){
-                                                if (passObj.new.length > 7){
-                                                    that.db.setHash("admin", passObj.new).then(function(){
-                                                            socket.emit("changePassResult", "Updated password.");
-                                                        },
-                                                        function(err){
-                                                            socket.emit("changePassResult", err.toString());
-                                                        });
+                        res.redirect("back");
+                        //res.status(200).send();
+                    });
+                    
+                    app.get("/admin", function(req, res){
+                        if (req.cookies.admin === "true")
+                            res.sendFile(path.join(__dirname, path.join('public', path.join('siteAdmin', 'index.html'))));
+                        else {
+                            res.sendFile(path.join(__dirname, path.join('public', 'login.html')));
+                        }
+                    });
 
-                                                }
-                                                else socket.emit("changePassResult", "Update failed. Invalid password. Must be at least 8 characters long");
-                                            },
-                                            function(){
-                                                socket.emit("changePassResult", "Update failed.");
-                                            });
-                                    });
+                    /*app.post("/admin/login", function(req, res){
+                        var auth = that.db.validatePassword("admin", req.body.password);
+                        auth.then(
+                            function(){
+                                res.cookie("admin", "true", {
+                                    path: "/admin",
+                                    maxAge: 86400000, // One day
+                                    //secure: true,
+                                    //signed: true
+                                });
+                                //res.append('Set-Cookie', 'admin=true; Path=/; HttpOnly; maxAge=86400000');
 
-                                    socket.emit("loginAuth", true);
+                                res.sendStatus(200);
+                            },
+                            function(err){
+                                res.status(403).end();
+                            }
+                        );
+                    });*/
+
+                    app.get("/admin/queues", function(req, res){
+                        if (req.cookies.admin === "true"){
+                            that.db.getAllQueues().then(
+                                function(result){
+                                    res.json(result);
                                 },
                                 function(err){
-                                    socket.emit("loginAuth", false);
+                                    res.status(500).end();
                                 }
                             )
-                        });
+                        }
+                        else res.status(403).end();
                     });
+
+                    app.post("/admin/queues", function(req, res){
+                        if (req.cookies.admin === "true"){
+                            if (Object.prototype.hasOwnProperty.call(req.body, "newName") &&
+                                Object.prototype.hasOwnProperty.call(req.body, "pass1") &&
+                                Object.prototype.hasOwnProperty.call(req.body, "pass2") &&
+                                req.body.pass1 === req.body.pass2) {
+                                var queue = {};
+                                queue.name = req.body.newName.toLowerCase();
+                                queue.password = req.body.pass1;
+
+                                that.db.addNewQueue(queue).then(
+                                    function(){
+                                        initQueue(queue.name);
+                                        res.redirect("/admin");
+                                    },
+                                    function(err){
+                                        res.status(500).end();
+                                    }
+                                );
+                            }
+                            else res.status(400).end();
+                        }
+                        else res.status(403).end();
+                    });
+
+                    /*
+                    // Putting this here for later
+                    app.put("/admin/queues", function(req, res){
+                        // Update existing queue here
+                    });
+                     */
+
+                    app.delete("/admin/queues", function(req, res){
+                        if (req.cookies.admin === "true"){
+                            var name = req.body.name.toLowerCase();
+                            if (that.db.queues.hasOwnProperty(name)){
+                                that.db.deleteQueue(name).then(
+                                    function(){
+                                        delete io.nsps["/" + name];
+                                        // The app stack has a "path" property that *should* contain the path name,
+                                        // e.g. "/example", however most of the time it is undefined. Instead,
+                                        // do pattern matching on the regex - how ironic.
+                                        var stack = app._router.stack;
+                                        for(var i = 0; i < stack.length; i++){
+                                            // This assumption is made because the name is alphanumeric only
+                                            switch (stack[i].regexp.toString()){
+                                                case "/^\\/" + name + "\\/?$/i":
+                                                case "/^\\/" + name + "\\/teacher\\/?$/i":
+                                                case "/^\\/" + name + "\\/student\\/?$/i":
+                                                case "/^\\/" + name + "\\/teacher\\/login\\/?$/i":
+                                                    console.log("Matched" + stack[i].regexp.toString());
+                                                    stack.splice(i, 1);
+                                                    i--;
+                                            }
+                                        }
+                                        res.status(204).end();
+                                    },
+                                    function(err){
+                                        res.status(500).end();
+                                    }
+                                );
+                            }
+                            else res.status(404).end();
+                        }
+                        else res.status(403).end();
+                    });
+
+                    app.post("/admin", function(req, res){
+                        if (req.cookies.admin === "true"){
+                            var auth = that.db.validatePassword("admin", req.body.old)
+                            auth.then(
+                                function(){
+                                    var newPassword = req.body.newpassword;
+                                    if (newPassword.length > 7){
+                                        that.db.setHash("admin", newPassword).then(
+                                            function(){
+                                                res.clearCookie("admin", {path: req.path});
+                                                res.redirect("back");
+                                            },
+                                            function(err){
+                                                res.status(500).end();
+                                            });
+
+                                    }
+                                    else res.status(400).end();
+                                },
+                                function(){
+                                    res.status(400).end();
+                                }
+                            )
+
+                        }
+                        else res.status(403).end();
+                    });
+
+                    //app.use("/admin", express.static(path.join(__dirname, path.join('public', 'admin'))));
 
                     Object.keys(that.db.queues).forEach(initQueue);
                     console.log("Done loading program")
@@ -135,88 +222,53 @@ StudentQueue.prototype.start = function(){
     );
 
     function initQueue(name) {
-        name = name.toLowerCase();
-        app.use("/" + name, express.static(path.join(__dirname, path.join('public', 'queue'))));
-
         var queue = that.db.queues[name];
         var room = io.of("/" + name);
         room.on('connection', function (socket) {
             console.log("Connection");
 
-            // Only allow teacher/aide actions if authenticated
-            socket.on('login', function (password) {
-                // Validate password against hash currently stored in text file
-                var auth = that.db.validatePassword(name, password);
-                // TODO: Change so that one login can provide multiple pages based on argument?
-                auth.then(
-                    function () {
-                        // Moved teacher socket handlers here so that they only work after validation
-                        socket.on('removeRequest', function (id) {
-                            var realId = id.slice(1, 7);
-                            var type = id.slice(7);
-                            if (type === "Help") {
-                                queue.remove(realId).then(
-                                    function () {
-                                        console.log("Successfully removed request from " + realId);
-                                    },
-                                    function (err) {
-                                        console.log(err)
-                                    }
-                                );
-                            }
-                            else {
-                                console.log("Could not remove request from database");
-                            }
-                            console.log("Student with id " + id + " was resolved");
-                            room.emit('removeStudent', id);
-                        });
-
-                        socket.on('clearedAll', function () {
-                            queue.reset();
-                            room.emit('clearAll');
-                        });
-
-                        socket.emit('loginAuth', true);
-
-                        var getRequests = queue.getAll();
-                        getRequests.then(
-                            function (requests) {
-                                requests.forEach(function (req, i, arr) {
-                                    socket.emit("addToQueue", {
-                                        id: req.studentid,
-                                        name: req.name,
-                                        problem: req.description
-                                    });
-                                });
-                            },
-                            function (err) {
-                                console.log(err);
-                            }
-                        );
-                    },
-                    function (errMsg) {
-                        socket.emit('loginAuth', false);
-                    });
-            });
-
-            socket.on('changePass', function (passObj) {
-                var auth = that.db.validatePassword(name, passObj.old);
-                auth.then(function () {
-                        if (passObj.new.length > 7) {
-                            that.db.setHash(name, passObj.new).then(function () {
-                                    socket.emit("changePassResult", "Updated password.");
-                                },
-                                function (err) {
-                                    socket.emit("changePassResult", err.toString());
-                                });
-
+            // I think I can assume that, if someone is on the teacher page, they are allowed to view it,
+            // So extra checks aren't necessary
+            socket.on('removeRequest', function (id) {
+                var realId = id.slice(1, 7);
+                var type = id.slice(7);
+                if (type === "Help") {
+                    queue.remove(realId).then(
+                        function () {
+                            console.log("Successfully removed request from " + realId);
+                        },
+                        function (err) {
+                            console.log(err)
                         }
-                        else socket.emit("changePassResult", "Update failed. Invalid password. Must be at least 8 characters long");
-                    },
-                    function () {
-                        socket.emit("changePassResult", "Update failed.");
-                    });
+                    );
+                }
+                else {
+                    console.log("Could not remove request from database");
+                }
+                console.log("Student with id " + id + " was resolved");
+                room.emit('removeStudent', id);
             });
+
+            socket.on('clearedAll', function () {
+                queue.reset();
+                room.emit('clearAll');
+            });
+
+            var getRequests = queue.getAll();
+            getRequests.then(
+                function (requests) {
+                    requests.forEach(function (req, i, arr) {
+                        socket.emit("addToQueue", {
+                            id: req.studentid,
+                            name: req.name,
+                            problem: req.description
+                        });
+                    });
+                },
+                function (err) {
+                    console.log(err);
+                }
+            );
 
             socket.on('studentRequest', function (student) {
                 console.log("Received help request");
@@ -226,6 +278,21 @@ StudentQueue.prototype.start = function(){
                 // Send to teacher page
                 room.emit('addToQueue', student);
             });
+        });
+        name = name.toLowerCase();
+        app.get("/"+name+"/teacher", function(req, res){
+            if (req.cookies.admin === "true"){
+                res.sendFile(path.join(__dirname, path.join('public', path.join('queue', path.join('teacher', 'index.html')))));
+            }
+            else {
+                res.sendFile(path.join(__dirname, path.join('public', 'login.html')));
+            }
+        });
+        app.get("/"+name+"/student", function(req, res){
+            res.sendFile(path.join(__dirname, path.join('public', path.join('queue', path.join('student', 'index.html')))));
+        });
+        app.get("/" + name, function(req, res){
+            res.sendFile(path.join(__dirname, path.join('public', path.join('queue', 'index.html'))));
         });
     }
 
