@@ -224,11 +224,11 @@ StudentQueue.prototype.start = function(){
     );
 
     function initQueue(name) {
-        var queue = that.db.queues[name];
+        name = name.toLowerCase();
         var room = io.of("/" + name);
         room.on('connection', function (socket) {
             console.log("Connection");
-
+            var queue = that.db.queues[name];
             // I think I can assume that, if someone is on the teacher page, they are allowed to view it,
             // So extra checks aren't necessary
             socket.on('removeRequest', function (id) {
@@ -281,7 +281,7 @@ StudentQueue.prototype.start = function(){
                 room.emit('addToQueue', student);
             });
         });
-        name = name.toLowerCase();
+
         app.get("/"+name+"/teacher", function(req, res){
             if (req.cookies.admin === "true"){
                 res.sendFile(path.join(__dirname, path.join('public', path.join('queue', path.join('teacher', 'index.html')))));
