@@ -63,7 +63,6 @@ $(document).ready(function(){
                             id: name + "DeleteBtn",
                             text: "Delete",
                             'class': "button",
-                            type: "button",
                             on: {
                               click: function(e) {
                                   $.ajax({

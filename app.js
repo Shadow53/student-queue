@@ -11,6 +11,7 @@ var path = require('path');
 var DB = require('student-queue-mysql-plugin');
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
+var ErrorPage = require("./error-page.js");
 
 function StudentQueue(config) {
     if (!(config.hasOwnProperty("host") && config.hasOwnProperty("user") &&
@@ -62,7 +63,8 @@ StudentQueue.prototype.start = function(){
                                 //res.status(200).send();
                             },
                             function(err){
-                                res.status(403).end();
+                                //res.status(401).end();
+                                res.send((new ErrorPage(401, "You entered the wrong password.")).html);
                             }
                         );
                     });
@@ -132,10 +134,10 @@ StudentQueue.prototype.start = function(){
                                 that.db.addNewQueue(queue).then(
                                     function(){
                                         initQueue(queue.name);
-                                        res.redirect("/admin");
+                                        res.redirect("back");
                                     },
                                     function(err){
-                                        res.status(500).end();
+                                        res.send((new ErrorPage(500)).html);
                                     }
                                 );
                             }
