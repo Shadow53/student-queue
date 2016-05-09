@@ -4,9 +4,6 @@ function isBathroom(){
 }
 
 $(document).ready(function(){
-  var pathArr = document.location.pathname.split("/");
-  var room = pathArr[pathArr.indexOf("student", pathArr.length - 3) - 1];
-  var socket = io("/" + room.toLowerCase());
 
   $("#submitHelpRequest").click(function(e){
     var sName = $("#studentName");

@@ -1,14 +1,5 @@
 "use strict";
 $(document).ready(function(){
-    var pathArr = document.location.pathname.split("/");
-    var index = pathArr.indexOf("teacher", pathArr.length - 3);
-    if (index === -1 ){
-        throw new Error("Die: Cannot parse the path.");
-    }
-
-    var room = pathArr[index - 1];
-    var socket = io("/" + room.toLowerCase());
-
     var canNotify = askToNotify("alert you to new student requests while you are away from this page.");
 
     socket.on('addToQueue', function(student){
