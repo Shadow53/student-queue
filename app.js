@@ -11,7 +11,9 @@ var path = require('path');
 var DB = require('student-queue-mysql-plugin');
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
-var ErrorPage = require("./error-page.js");
+var ErrorPage = require("./server/error-page.js");
+var TeacherPage = require("./server/teacher-page.js");
+var StudentPage = require("./server/student-page.js");
 
 function StudentQueue(config) {
     if (!(config.hasOwnProperty("host") && config.hasOwnProperty("user") &&
@@ -286,14 +288,14 @@ StudentQueue.prototype.start = function(){
 
         app.get("/"+name+"/teacher", function(req, res){
             if (req.cookies.admin === "true"){
-                res.sendFile(path.join(__dirname, path.join('public', path.join('queue', path.join('teacher', 'index.html')))));
+                res.send(new TeacherPage(name).html);
             }
             else {
                 res.sendFile(path.join(__dirname, path.join('public', 'login.html')));
             }
         });
         app.get("/"+name+"/student", function(req, res){
-            res.sendFile(path.join(__dirname, path.join('public', path.join('queue', path.join('student', 'index.html')))));
+            res.send(new StudentPage(name).html);
         });
         app.get("/" + name, function(req, res){
             res.sendFile(path.join(__dirname, path.join('public', path.join('queue', 'index.html'))));

@@ -59,6 +59,11 @@ $(document).ready(function(){
                         });
                         content.html("<p>" + (queue.description === null ? "<em>This queue has no description.</em>" : queue.description) + "</p>");
                         // TODO: Add ability to change password from here w/out verifying old?
+                        var form = $("<form></form>", {
+                            name: name + "EditForm",
+                            method: "PUT",
+                            action: "/admin/queues"
+                        });
                         var delbtn = $("<button></button>", {
                             id: name + "DeleteBtn",
                             text: "Delete",
@@ -77,11 +82,7 @@ $(document).ready(function(){
                               }
                             },
                             type: "submit"
-                        }).appendTo($("<form></form>"), {
-                            name: name + "EditForm",
-                            method: "PUT",
-                            action: "/admin/queues"
-                        }).appendTo(content);
+                        }).appendTo(form).appendTo(content);
 
                         accordion.append(title, content);
                     });
