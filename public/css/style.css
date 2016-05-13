@@ -51,6 +51,12 @@ body {
     font-size: 3em;
 }
 
+input[type="text"], input[type="number"], input[type="email"], input[type="password"], textarea {
+    background-color: #ffffff;
+    padding: 5px;
+    border: 1px solid #111111;
+}
+
 .button, li[role="tab"] {
     color: #ffffff;
     background-color: #444444;
