@@ -57,18 +57,25 @@ input[type="text"], input[type="number"], input[type="email"], input[type="passw
     border: 1px solid #111111;
 }
 
-.button, li[role="tab"] {
+a.button, button.button, div.button, li[role="tab"] {
     color: #ffffff;
     background-color: #444444;
 }
 
-.button:hover, .button:active, li[role="tab"].ui-tabs-active, li[role="tab"].ui-tabs-active:hover, li[role="tab"].ui-tabs-active:active {
+.button {
+    margin-bottom: 0;
+}
+
+a.button:hover, a.button:active, button.button:hover, button.button:active,
+div.button:hover, div.button:active, li[role="tab"].ui-tabs-active,
+li[role="tab"].ui-tabs-active:hover, li[role="tab"].ui-tabs-active:active {
     background-color: #bbbbbb;
     color: #000000;
 }
 
 .btn-clear {
     width: 90%;
+    height: 100%;
 }
 
 #problemText {
@@ -89,4 +96,8 @@ input[type="text"], input[type="number"], input[type="email"], input[type="passw
     z-index:    10;
     top:        0;
     left:       0;
+}
+
+#queueAccordion a.button {
+    width: 50%;
 }

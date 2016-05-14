@@ -5,23 +5,41 @@
     <title>Home</title>
 
     <link href="/css/foundation-flex.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/jquery-ui.min.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="/css/jquery-ui.structure.min.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="/css/jquery-ui.theme.min.css" type="text/css" charset="utf-8">
     <link href="/css/style.css" rel="stylesheet">
 
     <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" charset="utf-8"></script>
     <script>
         $(document).ready(function(){
-            $("#searchQueue").on("click", function(){
-                var location = document.location.href.slice(0, document.location.href.indexOf("index.html"));
-                if (location.slice(0, location.lastIndexOf("/")) !== location.length - 1)
-                    location += "/";
-                location += $("#queueName").val() + "/";
+            $.getJSON("/admin/queues").done(function(queues){
+                if (queues.length > 0){
+                    var accordion = $("#queueAccordion");
+                    queues.forEach(function(queue, i, arr){
+                        var name = queue.name.toLowerCase();
+                        var title = $("<h3></h3>", {
+                            id: name + "Title",
+                            text: name.charAt(0).toUpperCase() + name.slice(1)
+                        });
+                        var content = $("<div></div>", {
+                            id: name + "Content"
+                        });
+                        content.html(
+                                '<a class="button" href="/' + queue.name.toLowerCase() + '/student">Student</a>' +
+                                '<a class="button" href="/' + queue.name.toLowerCase() + '/teacher">Teacher</a>'
+                        );
+                        accordion.append(title, content);
+                    });
 
-                $.get(location).always(function(result, status){
-                    if (status === "success")
-                        document.location.href = location;
-                    else
-                        $("#qFound").text("Given help queue does not exist");
-                });
+                    $(accordion).accordion({
+                        collapsible: true,
+                        active: false,
+                        heightStyle: "content",
+                        header: "h3"
+                    });
+                }
             });
         });
     </script>
@@ -33,13 +51,9 @@
                 <h1>Welcome to the Queue</h1>
             </div>
             <div class="large-6 medium-6 small-12 columns">
-                <p>This page is still in the works. In the meantime, try navigating to a help queue by entering the name in the text box and clicking "Go!"</p>
-                <p>Note: If the queue does not exist, just hit the back button to come back here and get a link from your teacher.</p>
-            </div>
-            <div class="large-6 medium-6 small-12 columns">
-                <label>Queue search: <input id="queueName"></label>
-                <br/><button id="searchQueue" class="button">Go!</button>
-                <br/><span id="qFound" class="status"></span>
+                <div id="queueAccordion">
+
+                </div>
             </div>
         </div>
     </div>
