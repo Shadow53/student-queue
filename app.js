@@ -110,17 +110,14 @@ StudentQueue.prototype.start = function(){
                     });*/
 
                     app.get("/admin/queues", function(req, res){
-                        if (req.cookies.admin === "true"){
-                            that.db.getAllQueues().then(
-                                function(result){
-                                    res.json(result);
-                                },
-                                function(err){
-                                    res.status(500).end();
-                                }
-                            )
-                        }
-                        else res.status(403).end();
+                        that.db.getAllQueues().then(
+                            function(result){
+                                res.json(result);
+                            },
+                            function(err){
+                                res.status(500).end();
+                            }
+                        );
                     });
 
                     app.post("/admin/queues", function(req, res){
