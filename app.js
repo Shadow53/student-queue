@@ -14,6 +14,11 @@ var bodyParser = require("body-parser");
 var ErrorPage = require("./server/error-page.js");
 var TeacherPage = require("./server/teacher-page.js");
 var StudentPage = require("./server/student-page.js");
+var QueueHomePage = require("./server/queue-home-page.js");
+var QueueAdminPage = require("./server/queue-admin-page.js");
+var SiteAdminPage = require("./server/site-admin-page.js");
+var SiteHomePage = require("./server/site-home-page.js");
+var LoginPage = require("./server/login-page.js");
 
 function StudentQueue(config) {
     if (!(config.hasOwnProperty("host") && config.hasOwnProperty("user") &&
@@ -83,9 +88,9 @@ StudentQueue.prototype.start = function(){
                     
                     app.get("/admin", function(req, res){
                         if (req.cookies.admin === "true")
-                            res.sendFile(path.join(__dirname, path.join('public', path.join('siteAdmin', 'index.html'))));
+                            res.send(new SiteAdminPage().html);
                         else {
-                            res.sendFile(path.join(__dirname, path.join('public', 'login.html')));
+                            res.send(new LoginPage(req.originalUrl,"site admin").html);
                         }
                     });
 
@@ -288,19 +293,29 @@ StudentQueue.prototype.start = function(){
                 res.send(new TeacherPage(name).html);
             }
             else {
-                res.sendFile(path.join(__dirname, path.join('public', 'login.html')));
+                res.send(new LoginPage(req.originalUrl,"teacher").html);
             }
         });
         app.get("/"+name+"/student", function(req, res){
             res.send(new StudentPage(name).html);
         });
         app.get("/" + name, function(req, res){
-            res.sendFile(path.join(__dirname, path.join('public', path.join('queue', 'index.html'))));
+            res.send(new QueueHomePage(name).html);
+        });
+        app.get("/" + name + "/admin", function(req, res){
+            if (req.cookies.admin === "true"){
+                res.send(new QueueAdminPage(name).html);
+            }
+            else {
+                res.send(new LoginPage(req.originalUrl,"queue admin").html);
+            }
         });
     }
 
     // Put this here because the program will use this path last:
-    app.use(express.static(path.join(__dirname, path.join('public', 'home'))))
+    app.get("/", function(req, res){
+        res.send(new SiteHomePage().html);
+    });
 
     http.listen(this.port, function(){
         console.log('listening on *:' + this.port);

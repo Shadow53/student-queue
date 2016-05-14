@@ -2,8 +2,8 @@
  * Created by michael on 5/9/16.
  */
 var capitalize = require("./library.js").capitalize;
-function TeacherPage(roomName) {
-    roomName = roomName.toLowerCase();
+function TeacherPage(name) {
+    name = name.toLowerCase();
     this.html = '<!doctype html>' +
         '<html>' +
         '<head>' +
@@ -24,7 +24,7 @@ function TeacherPage(roomName) {
             '<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" charset="utf-8"></script>' +
             '<script src="/js/canNotify.js" charset="utf-8"></script>' +
             '<script>' +
-                'var socket = io("/' + roomName +'");' +
+                'var socket = io("/' + name +'");' +
             '</script>' +
             '<script src="/js/queue.js" charset="utf-8"></script>' +
         '</head>' +
@@ -34,7 +34,7 @@ function TeacherPage(roomName) {
                     '<div class="large-12 medium-12 small-12 columns text-center">' +
                         '<div class="row">' +
                             '<div class="large-10 medium-10 small-8 columns">' +
-                                '<h1>' + capitalize(roomName) + '\'s Student Queue</h1>' +
+                                '<h1>' + capitalize(name) + '\'s Student Queue</h1>' +
                             '</div>' +
                             '<div class="large-2 medium-2 small-4 columns">' +
                                 '<form name="logout" method="POST">' +
