@@ -57,9 +57,9 @@ function StudentPage(name) {
                             '<textarea type="text" id="problemText" placeholder="Example: ArrayIndexOutOfBoundsException on reverse method"></textarea>' +
                         '</div>' +
                     '</div>' +
-
                     '<div class="row">' +
                         '<div class="large-4 medium-4 small-12 columns">' +
+                            '<br>' +
                             '<button class="expanded button" id="submitHelpRequest">Submit</button>' +
                         '</div>' +
                     '</div>' +

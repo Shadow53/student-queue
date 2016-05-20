@@ -57,7 +57,11 @@ function SiteHomePage(){
                 '</div>' +
                 '<div class="row">' +
                     '<div class="large-6 medium-6 small-12 columns">' +
-
+                        '<p>' +
+                            'Welcome to the help request queue. ' +
+                            'Please select a queue from the list and choose "Student" if you are a student or ' +
+                            '"Teacher" if you are the teacher or the student aide.' +
+                        '</p>'+
                     '</div>' +
                     '<div class="large-6 medium-6 small-12 columns">' +
                         '<div id="queueAccordion">' +
