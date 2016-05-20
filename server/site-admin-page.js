@@ -44,16 +44,21 @@ function SiteAdminPage(name) {
                             '<form name="new_queue" action="/admin/queues" method="POST">' +
                                 '<h2>Creating a new help queue <span id="newQueueError"></span></h2>' +
                                 '<label for="newName">New Queue Name</label>' +
-                                '<small><em>Alphanumeric only, no spaces.</em></small><br/>' +
+                                '<small><em>Alphanumeric only, no spaces.</em></small>' +
+                                '<br/>' +
                                 '<input type="text" name="newName" id="newName" minlength="3" pattern="(^\w)\w+" required/>' +
                                 '<br/>' +
                                 '<label for="pass1">Queue Admin Password</label>' +
-                                '<small><em>At least 8 characters!</em></small><br/>' +
+                                '<small><em>At least 8 characters!</em></small>' +
+                                '<br/>' +
                                 '<input type="password" name="pass1" id="pass1" minlength="8" required/>' +
                                 '<br/>' +
                                 '<label for="pass2">Confirm Password</label>' +
+                                '<br/>' +
                                 '<input type="password" name="pass2" id="pass2" minlength="8" required/>' +
+                                '<br/>' +
                                 '<label for="desc">Queue Description</label>' +
+                                '<br/>' +
                                 '<textarea name="desc" id="desc"></textarea><br/>' +
                                 '<button type="submit" class="button" id="makeNewQueue">Create</button>' +
                             '</form>' +
