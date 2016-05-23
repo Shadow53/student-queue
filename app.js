@@ -150,12 +150,47 @@ StudentQueue.prototype.start = function(){
                         else res.status(403).end();
                     });
 
-                    /*
                     // Putting this here for later
                     app.put("/admin/queues", function(req, res){
-                        // Update existing queue here
+                        if (req.cookies.admin === "true") {
+                            var name = req.body.name.toLowerCase();
+                            if (that.db.queues.hasOwnProperty(name)) {
+                                that.db.setDescription(name, req.body.description).then(
+                                    function(){
+                                        if (Object.prototype.hasOwnProperty.call(req.body, "password") &&
+                                            req.body.password !== "") {
+                                            that.db.setHash(name, req.body.password).then(
+                                                function(){
+                                                    res.status(200).end();
+                                                },
+                                                function(err){
+                                                    // Is it a user error?
+                                                    // This should be checked before, but who knows?
+                                                    if (err.indexOf("Missing one of the required arguments:") > -1) {
+                                                        res.status(400).end();
+                                                    }
+                                                    // Else probably a DB error
+                                                    else res.send(500).end();
+                                                }
+                                            );
+                                        }
+                                        else res.status(200).end();
+                                    },
+                                    function(err){
+                                        // Is it a user error?
+                                        // This should be checked before, but who knows?
+                                        if (err.indexOf("Missing one of the required arguments:") > -1) {
+                                            res.status(400).end();
+                                        }
+                                        // Else probably a DB error
+                                        else res.status(500).end()
+                                    }
+                                );
+                            }
+                            else res.status(400).end()
+                        }
+                        else res.status(403).end();
                     });
-                     */
 
                     app.delete("/admin/queues", function(req, res){
                         if (req.cookies.admin === "true"){

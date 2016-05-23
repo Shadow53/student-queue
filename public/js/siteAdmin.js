@@ -57,19 +57,21 @@ $(document).ready(function(){
                         var content = $("<div></div>", {
                             id: name + "Content"
                         });
-                        content.html("<p>" + (queue.description === null ? "<em>This queue has no description.</em>" : queue.description) + "</p>");
+                        content.html("<p>" + (queue.description === null ?
+                                "<em>This queue has no description.</em>" : queue.description) + "</p>");
                         // TODO: Add ability to change password from here w/out verifying old?
                         var form = $("<form></form>", {
                             name: name + "EditForm",
                             method: "PUT",
                             action: "/admin/queues"
                         });
-                        var delbtn = $("<button></button>", {
+                        var delBtn = $("<button></button>", {
                             id: name + "DeleteBtn",
                             text: "Delete",
                             'class': "button",
+                            type: "button",
                             on: {
-                              click: function(e) {
+                              click: function deleteButton(e) {
                                   $.ajax({
                                       url: "/admin/queues",
                                       method: "DELETE",
@@ -80,9 +82,102 @@ $(document).ready(function(){
                                       .fail(function(){alert("An error occurred while deleting queue: " + name)});
                                   return false;
                               }
-                            },
-                            type: "submit"
-                        }).appendTo(form).appendTo(content);
+                            }
+                        });
+                        var editBtn = $("<button></button>", {
+                            id: name + "EditBtn",
+                            text: "Modify",
+                            'class': "button",
+                            type: "button",
+                            on: {
+                                click: function editButton(e) {
+                                    // When I tried this at work, jQuery didn't work
+                                    var win = document.createElement("div");
+                                    win.setAttribute("id", "queueModifyWindow");
+                                    document.body.appendChild(win);
+                                    win.innerHTML =
+                                        "<form>" +
+                                            "<label>" +
+                                                "New Password: " +
+                                                "<br/><input type='password' name='newPass1' id='queueModifyNewPass1'>" +
+                                            "</label>" +
+                                            "<br/>" +
+                                            "<label>" +
+                                                "Verify Password" +
+                                                "<br/><input type='password' name='newPass2' id='queueModifyNewPass2'>" +
+                                            "</label>" +
+                                            "<br/>" +
+                                            "<label>" +
+                                                "Description:" +
+                                                "<br/><textarea name='modifyDescription' id='modifyDescription'>" +
+                                                    queue.description +
+                                                "</textarea>" +
+                                            "</label>" +
+                                        "</form>";
+                                    var dialog = $(win).dialog({
+                                        title: "Modifying " + name.charAt(0).toUpperCase() + name.slice(1),
+                                        buttons: [
+                                            {
+                                                text: "Save",
+                                                icons: "ui-icon-document",
+                                                click: function modifySubmit(e) {
+                                                    var dialog = this;
+                                                    var pass1 = document.getElementById("queueModifyNewPass1");
+                                                    var pass2 = document.getElementById("queueModifyNewPass2");
+                                                    var desc = document.getElementById("modifyDescription");
+                                                    // TODO: Change from alerts
+                                                    if (pass1.value.length < 8) {
+                                                        alert("The password needs to be longer");
+                                                        pass1.focus();
+                                                    }
+                                                    else if (pass1.value !== pass2.value) {
+                                                        alert("Passwords do not match");
+                                                        pass1.value = "";
+                                                        pass2.value = "";
+                                                    }
+                                                    else {
+                                                        var result = $.ajax({
+                                                            data: {
+                                                                name: queue.name,
+                                                                password: pass1.value,
+                                                                description: desc.value
+                                                            },
+                                                            method: "PUT",
+                                                            // TODO: Change these to something other than alerts
+                                                            statusCode: {
+                                                                400: function(){
+                                                                    alert("Sorry, something you provided was invalid. Please try again");
+                                                                },
+                                                                403: function(){
+                                                                    alert("You were not authenticated for this update. Please try again later.");
+                                                                    window.location.reload(true);
+                                                                },
+                                                                500: function(){
+                                                                    alert("An internal server error occurred. Please try again in a little bit.");
+                                                                    $(dialog).dialog("close");
+                                                                }
+                                                            },
+                                                            url: "/admin/queues"
+                                                        });
+
+                                                        result.done(function(){
+                                                            $(dialog).dialog("close");
+                                                            window.location.reload();
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    });
+                                    // End dialog definition
+                                    dialog.dialog("open");
+                                }
+                            }
+                        });
+
+                        delBtn.appendTo(form)
+                        editBtn.appendTo(form);
+                        form.appendTo(content);
 
                         accordion.append(title, content);
                     });
