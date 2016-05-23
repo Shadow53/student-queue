@@ -59,7 +59,6 @@ $(document).ready(function(){
                         });
                         content.html("<p>" + (queue.description === null ?
                                 "<em>This queue has no description.</em>" : queue.description) + "</p>");
-                        // TODO: Add ability to change password from here w/out verifying old?
                         var form = $("<form></form>", {
                             name: name + "EditForm",
                             method: "PUT",

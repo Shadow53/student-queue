@@ -63,7 +63,7 @@ a.button, button.button, div.button, li[role="tab"] {
 }
 
 .button {
-    margin-bottom: 0;
+    margin: 1px 1px;
 }
 
 a.button:hover, a.button:active, button.button:hover, button.button:active,
