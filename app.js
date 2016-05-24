@@ -134,6 +134,7 @@ StudentQueue.prototype.start = function(){
                                 var queue = {};
                                 queue.name = req.body.newName.toLowerCase();
                                 queue.password = req.body.pass1;
+                                queue.description = req.body.desc;
 
                                 that.db.addNewQueue(queue).then(
                                     function(){
