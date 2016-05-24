@@ -46,7 +46,7 @@ function SiteAdminPage(name) {
                                 '<label for="newName">New Queue Name</label>' +
                                 '<small><em>Alphanumeric only, no spaces.</em></small>' +
                                 '<br/>' +
-                                '<input type="text" name="newName" id="newName" minlength="3" pattern="(^\w)\w+" required/>' +
+                                '<input type="text" name="newName" id="newName" minlength="3" pattern="\\b\\w+\\b" required/>' +
                                 '<br/>' +
                                 '<label for="pass1">Queue Admin Password</label>' +
                                 '<small><em>At least 8 characters!</em></small>' +
