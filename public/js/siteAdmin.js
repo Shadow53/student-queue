@@ -109,7 +109,7 @@ $(document).ready(function(){
                                             "<label>" +
                                                 "Description:" +
                                                 "<br/><textarea name='modifyDescription' id='modifyDescription'>" +
-                                                    queue.description +
+                                        (queue.description === null ? "" : queue.description) +
                                                 "</textarea>" +
                                             "</label>" +
                                         "</form>";
