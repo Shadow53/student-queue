@@ -126,14 +126,14 @@ $(document).ready(function(){
                                                     var pass2 = document.getElementById("queueModifyNewPass2");
                                                     var desc = document.getElementById("modifyDescription");
                                                     // TODO: Change from alerts
-                                                    if (pass1.value.length < 8) {
-                                                        alert("The password needs to be longer");
-                                                        pass1.focus();
-                                                    }
-                                                    else if (pass1.value !== pass2.value) {
+                                                    if (pass1.value !== pass2.value) {
                                                         alert("Passwords do not match");
                                                         pass1.value = "";
                                                         pass2.value = "";
+                                                    }
+                                                    else if (pass1.value.length < 8 && pass1.value.length > 0) {
+                                                        alert("The password needs to be longer");
+                                                        pass1.focus();
                                                     }
                                                     else {
                                                         var result = $.ajax({
