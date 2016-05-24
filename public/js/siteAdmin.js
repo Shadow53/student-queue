@@ -115,6 +115,7 @@ $(document).ready(function(){
                                         "</form>";
                                     var dialog = $(win).dialog({
                                         title: "Modifying " + name.charAt(0).toUpperCase() + name.slice(1),
+                                        modal: true,
                                         buttons: [
                                             {
                                                 text: "Save",
