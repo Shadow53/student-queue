@@ -35,11 +35,13 @@ body {
     max-height: 500px;
 }
 
-.whoami {
+a.whoami {
     border: 3px solid #999999;
     padding: 50px 0;
     text-decoration: none;
     font-size: 1.5em;
+    /* Undo margin from .button */
+    margin: 0;
 }
 
 .clear {
