@@ -71,7 +71,7 @@ StudentQueue.prototype.start = function(){
                             },
                             function(err){
                                 //res.status(401).end();
-                                res.send((new ErrorPage(401, "You entered the wrong password.")).html);
+                                res.send((new ErrorPage(401, "You entered the wrong password.", true)).html);
                             }
                         );
                     });
@@ -142,7 +142,7 @@ StudentQueue.prototype.start = function(){
                                         res.redirect("back");
                                     },
                                     function(err){
-                                        res.send((new ErrorPage(500)).html);
+                                        res.send((new ErrorPage(500, err.message, true)).html);
                                     }
                                 );
                             }
@@ -271,7 +271,7 @@ StudentQueue.prototype.start = function(){
         function (err) {
             console.error(err);
             app.get("*", function(req, res){
-                res.send(new ErrorPage(500, err.message).html);
+                res.send(new ErrorPage(500, err.message, false).html);
             });
         }
     );
