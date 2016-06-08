@@ -25,11 +25,17 @@
     "url": "https://github.com/Shadow53/student-queue/issues"
   },
   "homepage": "https://github.com/Shadow53/student-queue#readme",
-  "version": "0.6.9",
+  "version": "0.6.10",
   "main": "app.js",
-  "devDependencies": {},
+  "devDependencies": {
+    "mocha": "2.5.x",
+    "chai": "3.5.x",
+    "chai-as-promised": "5.3.x"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pretest": "",
+    "test": "mocha tests/main.js",
+    "posttest": ""
   },
   "keywords": [
     "student",
