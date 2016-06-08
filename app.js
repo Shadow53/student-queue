@@ -262,6 +262,17 @@ StudentQueue.prototype.start = function(){
                     console.log("Done loading program")
                 }
             );
+
+            // Put this here because the program will use this path last:
+            app.get("/", function(req, res){
+                res.send(new SiteHomePage().html);
+            });
+        },
+        function (err) {
+            console.error(err);
+            app.get("*", function(req, res){
+                res.send(new ErrorPage(500, err.message).html);
+            });
         }
     );
 
@@ -347,11 +358,6 @@ StudentQueue.prototype.start = function(){
             }
         });
     }
-
-    // Put this here because the program will use this path last:
-    app.get("/", function(req, res){
-        res.send(new SiteHomePage().html);
-    });
 
     http.listen(this.port, function(){
         console.log('listening on *:' + this.port);
