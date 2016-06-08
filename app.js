@@ -256,17 +256,21 @@ StudentQueue.prototype.start = function(){
                         else res.status(403).end();
                     });
 
-                    //app.use("/admin", express.static(path.join(__dirname, path.join('public', 'admin'))));
+                    // Put this here because the program will use this path last:
+                    app.get("/", function(req, res){
+                        res.send(new SiteHomePage().html);
+                    });
 
                     Object.keys(that.db.queues).forEach(initQueue);
                     console.log("Done loading program")
+                },
+                function(err) {
+                    console.error(err);
+                    app.get("*", function (req, res){
+                       res.send(new ErrorPage(500, err.message, false).html);
+                    });
                 }
             );
-
-            // Put this here because the program will use this path last:
-            app.get("/", function(req, res){
-                res.send(new SiteHomePage().html);
-            });
         },
         function (err) {
             console.error(err);
