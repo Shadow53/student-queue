@@ -8,7 +8,10 @@
     "body-parser": "1.15.x",
     "cookie-parser": "1.4.x",
     "promise": "7.1.x",
-    "student-queue-mysql-plugin": "0.1.x"
+  },
+  "peerDependencies": {
+    "student-queue-mysql-plugin": "0.1.x",
+    "student-queue-mariadb-plugin": "0.1.x"
   },
   "description": "student queue list backend",
   "installable": true,
